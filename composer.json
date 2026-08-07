@@ -1,0 +1,13 @@
+{
+    "name": "tltsuite/tlt-search",
+    "description": "WooCommerce product search powered by Loupe",
+    "type": "wordpress-plugin",
+    "autoload": {
+        "psr-4": {
+            "TLTSuite\\TLTSearch\\": "src/"
+        }
+    },
+    "require": {
+        "loupe/loupe": "^0.13.17"
+    }
+}
