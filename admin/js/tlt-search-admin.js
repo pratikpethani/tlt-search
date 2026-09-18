@@ -75,7 +75,7 @@
 
 		function showDone(indexed) {
 			$bar.css('width', '100%');
-			$text.html('<strong style="color:#0a8a0a;">&#10003; Done — ' + indexed + ' products indexed.</strong>');
+			$text.html('<strong style="color:#0a8a0a;"><i class="icon icon-check"></i> Done — ' + indexed + ' products indexed.</strong>');
 			$btn.prop('disabled', false).text('Rebuild Index');
 			setTimeout(function () { location.reload(); }, 1500);
 		}
@@ -182,17 +182,17 @@
 						return '<tr>' +
 							'<td>' + img + label + '</td>' +
 							'<td style="text-align:right;">' +
-								'<button class="button button-small tlt-pin-product" ' +
+								'<button class="btn btn-sm btn-primary tlt-pin-product" ' +
 									'data-product-id="' + item.id + '" ' +
 									'data-query="' + $('<span>').text(q).html() + '"' +
 									( item.is_pinned ? ' disabled title="Already pinned"' : '' ) +
-								'>' + ( item.is_pinned ? '&#10003; Pinned' : '+ Pin' ) + '</button>' +
+								'>' + ( item.is_pinned ? '<i class="icon icon-check"></i> Pinned' : '<i class="icon icon-plus"></i> Pin' ) + '</button>' +
 							'</td>' +
 						'</tr>';
 					});
 
 					$pinResults.html(
-						'<table class="widefat striped" style="max-width:680px;">' +
+						'<table class="table table-hover">' +
 						'<thead><tr><th>Product</th><th style="width:90px;text-align:right;">Action</th></tr></thead>' +
 						'<tbody>' + rows.join('') + '</tbody></table>'
 					);
@@ -225,14 +225,14 @@
 			})
 			.done(function (res) {
 				if ( res.success ) {
-					$btn.text('&#10003; Pinned').css('color', '#0a8a0a');
+					$btn.text('Pinned');
 				} else {
-					$btn.prop('disabled', false).text('+ Pin');
+					$btn.prop('disabled', false).text('Pin');
 					alert(res.data || 'Error adding pin.');
 				}
 			})
 			.fail(function () {
-				$btn.prop('disabled', false).text('+ Pin');
+				$btn.prop('disabled', false).text('Pin');
 			});
 		});
 
@@ -291,7 +291,7 @@
 						$partialStatus.html('<span style="color:#d63638;">Error: ' + res.data + '</span>');
 					} else {
 						$partialStatus.html(
-							'<span style="color:#0a8a0a;font-weight:600;">&#10003; ' +
+							'<span style="color:#0a8a0a;font-weight:600;"><i class="icon icon-check"></i> ' +
 							res.data.count + ' product(s) re-indexed.</span>'
 						);
 					}
