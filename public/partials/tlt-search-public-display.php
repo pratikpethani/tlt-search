@@ -20,10 +20,11 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 		/>
 		<span class="tlt-search__spinner" x-show="loading" aria-hidden="true"></span>
 	</div>
-
+	<div class="tlt-search__results-container" x-show="hasSearched || loading || hasError()">
 	<!-- Error State -->
 	<p class="tlt-search__error" x-show="hasError()" x-text="error" role="alert"></p>
 
+	
 	<!-- Results / filter bar (visible after first search) -->
 	<div class="tlt-search__meta-bar" x-show="hasSearched && !loading && !hasError()">
 
@@ -42,7 +43,7 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 				>
 					<?php esc_html_e( 'Filters', 'tlt-search' ); ?>
 					<span class="tlt-search__filter-badge" x-show="hasActiveFilters()" x-text="activeFilterCount()"></span>
-					<span class="tlt-search__filter-chevron" :class="filterPanelOpen ? 'tlt-search__filter-chevron--up' : ''">&#8964;</span>
+					<span class="tlt-search__filter-chevron" :class="filterPanelOpen ? 'tlt-search__filter-chevron--up' : ''"><svg width="16px" height="16px" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" fill="currentColor" fill-opacity="0.01"/><path d="M37 18L25 30L13 18" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
 				</button>
 
 				<button
@@ -225,7 +226,10 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 			@click="prevPage()"
 			:disabled="page <= 1"
 			aria-label="<?php esc_attr_e( 'Previous page', 'tlt-search' ); ?>"
-		>&lsaquo;</button>
+		><svg width="24px" height="24px" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="48" height="48" fill="currentColor" fill-opacity="0.01"/>
+<path d="M31 36L19 24L31 12" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></button>
 
 		<span class="tlt-search__page-info">
 			<span x-text="page"></span> / <span x-text="totalPages"></span>
@@ -236,7 +240,9 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 			@click="nextPage()"
 			:disabled="page >= totalPages"
 			aria-label="<?php esc_attr_e( 'Next page', 'tlt-search' ); ?>"
-		>&rsaquo;</button>
-	</nav>
+		><svg width="24px" height="24px" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect width="48" height="48" fill="currentColor" fill-opacity="0.01"/><path d="M19 12L31 24L19 36" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+</svg></button></nav>
+	</div>
 
 </div>
