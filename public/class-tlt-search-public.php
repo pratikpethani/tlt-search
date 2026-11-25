@@ -124,13 +124,17 @@ class Tlt_Search_Public {
 
 	public function render_search_block( array $attributes ): string {
 
-		$atts = [ 'show_filters' => ! isset( $attributes['showFilters'] ) || $attributes['showFilters'] ? 'true' : 'false' ];
+		// Return shortcode text, not markup: WordPress runs wptexturize over block output
+		// and it corrupts attributes containing ">" or quotes. The shortcode is expanded
+		// afterwards, on clean markup.
+		$show = ! isset( $attributes['showFilters'] ) || $attributes['showFilters'] ? 'true' : 'false';
+		$code = '[tlt_search show_filters="' . $show . '"';
 
 		if ( ! empty( $attributes['placeholder'] ) ) {
-			$atts['placeholder'] = $attributes['placeholder'];
+			$code .= ' placeholder="' . str_replace( [ '"', '[', ']' ], '', wp_strip_all_tags( $attributes['placeholder'] ) ) . '"';
 		}
 
-		return $this->render_search_shortcode( $atts );
+		return $code . ']';
 	}
 
 	public function render_search_shortcode( $atts ): string {

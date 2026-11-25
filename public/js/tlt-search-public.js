@@ -223,6 +223,18 @@ document.addEventListener( 'alpine:init', () => {
 			await this.fetchResults();
 		},
 
+		hasPages() {
+			return this.totalPages > 1;
+		},
+
+		isFirstPage() {
+			return this.page <= 1;
+		},
+
+		isLastPage() {
+			return this.page >= this.totalPages;
+		},
+
 		hasResults() {
 			return this.results.length > 0;
 		},

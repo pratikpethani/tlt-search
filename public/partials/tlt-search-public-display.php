@@ -16,14 +16,14 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 			@input.debounce.300ms="search()"
 			@keydown.arrow-down.prevent="moveActive(1)"
 			@keydown.arrow-up.prevent="moveActive(-1)"
-			@keydown.enter="if (activeIndex > -1) { $event.preventDefault(); openActive(); }"
+			@keydown.enter="if (activeIndex !== -1) { $event.preventDefault(); openActive(); }"
 			@keydown.escape="closeResults()"
 			role="combobox"
 			aria-expanded="false"
 			:aria-expanded="hasResults() && hasSearched ? 'true' : 'false'"
 			aria-controls="tlt-search-listbox"
 			aria-autocomplete="list"
-			:aria-activedescendant="activeIndex > -1 ? 'tlt-search-opt-' + results[activeIndex].id : null"
+			:aria-activedescendant="activeIndex !== -1 ? 'tlt-search-opt-' + results[activeIndex].id : null"
 			placeholder="<?php echo esc_attr( $placeholder ); ?>"
 			autocomplete="off"
 			aria-label="<?php esc_attr_e( 'Search products', 'tlt-search' ); ?>"
@@ -84,7 +84,7 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 		<div class="tlt-search__filter-panel">
 
 			<!-- Categories -->
-			<template x-if="facets.categories.length > 0">
+			<template x-if="facets.categories.length !== 0">
 				<div class="tlt-search__facet">
 					<p class="tlt-search__facet-title"><?php esc_html_e( 'Category', 'tlt-search' ); ?></p>
 					<template x-for="opt in facets.categories" :key="opt.value">
@@ -104,7 +104,7 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 			</template>
 
 			<!-- Brands -->
-			<template x-if="facets.brands.length > 0">
+			<template x-if="facets.brands.length !== 0">
 				<div class="tlt-search__facet">
 					<p class="tlt-search__facet-title"><?php esc_html_e( 'Brand', 'tlt-search' ); ?></p>
 					<template x-for="opt in facets.brands" :key="opt.value">
@@ -124,7 +124,7 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 			</template>
 
 			<!-- Tags -->
-			<template x-if="facets.tags.length > 0">
+			<template x-if="facets.tags.length !== 0">
 				<div class="tlt-search__facet">
 					<p class="tlt-search__facet-title"><?php esc_html_e( 'Tag', 'tlt-search' ); ?></p>
 					<template x-for="opt in facets.tags" :key="opt.value">
@@ -144,7 +144,7 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 			</template>
 
 			<!-- Stock Status -->
-			<template x-if="facets.stock_status.length > 0">
+			<template x-if="facets.stock_status.length !== 0">
 				<div class="tlt-search__facet">
 					<p class="tlt-search__facet-title"><?php esc_html_e( 'Availability', 'tlt-search' ); ?></p>
 					<template x-for="opt in facets.stock_status" :key="opt.value">
@@ -245,11 +245,11 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 	</ul>
 
 	<!-- Pagination -->
-	<nav class="tlt-search__pagination" x-show="totalPages > 1" aria-label="<?php esc_attr_e( 'Search results pages', 'tlt-search' ); ?>">
+	<nav class="tlt-search__pagination" x-show="hasPages()" aria-label="<?php esc_attr_e( 'Search results pages', 'tlt-search' ); ?>">
 		<button
 			class="tlt-search__page-btn"
 			@click="prevPage()"
-			:disabled="page <= 1"
+			:disabled="isFirstPage()"
 			aria-label="<?php esc_attr_e( 'Previous page', 'tlt-search' ); ?>"
 		><svg width="24px" height="24px" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="48" height="48" fill="currentColor" fill-opacity="0.01"/>
@@ -263,7 +263,7 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 		<button
 			class="tlt-search__page-btn"
 			@click="nextPage()"
-			:disabled="page >= totalPages"
+			:disabled="isLastPage()"
 			aria-label="<?php esc_attr_e( 'Next page', 'tlt-search' ); ?>"
 		><svg width="24px" height="24px" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="48" height="48" fill="currentColor" fill-opacity="0.01"/><path d="M19 12L31 24L19 36" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
