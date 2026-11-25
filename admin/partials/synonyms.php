@@ -5,69 +5,41 @@ use TLTSuite\TLTSearch\Synonyms\SynonymManager;
 
 $manager = new SynonymManager();
 $groups  = $manager->get_groups();
+
+$tlt_page = 'synonyms';
+require __DIR__ . '/header.php';
 ?>
 
-<div id="tlt-suite">
-	<div class="tlt-suite tlt-settings-page">
-		<div class="container py-2">
-			<div class="columns">
-				<div class="column col-lg-12">
-					<h1 class="text-bold mb-2"><?php esc_html_e( 'TLT Search — Synonyms', 'tlt-search' ); ?></h1>
-					<p><?php esc_html_e( 'Each row is a synonym group — all terms in a group match each other at search time. Changes take effect immediately; no index rebuild required.', 'tlt-search' ); ?></p>
-				</div>
-			</div>
+<div class="tlt-box">
+	<h2><?php esc_html_e( 'Add words that mean the same', 'tlt-search' ); ?></h2>
+	<div class="tlt-inline">
+		<input type="text" id="tlt-synonym-input" aria-label="<?php esc_attr_e( 'Words, separated by commas', 'tlt-search' ); ?>" placeholder="<?php esc_attr_e( 'e.g. sofa, couch, settee', 'tlt-search' ); ?>" />
+		<button type="button" id="tlt-add-synonym-btn" class="button button-primary"><?php esc_html_e( 'Add', 'tlt-search' ); ?></button>
+	</div>
+	<p class="tlt-help"><?php esc_html_e( 'Type two or more words, separated by commas. Works right away.', 'tlt-search' ); ?></p>
+	<p id="tlt-synonym-msg" role="status"></p>
+</div>
+
+<div class="tlt-box">
+	<h2><?php esc_html_e( 'Your synonyms', 'tlt-search' ); ?></h2>
+	<?php if ( empty( $groups ) ) : ?>
+		<p><?php esc_html_e( 'No synonyms yet.', 'tlt-search' ); ?></p>
+	<?php else : ?>
+		<table class="table table-hover" id="tlt-synonyms-table">
+			<tbody>
+				<?php foreach ( $groups as $i => $terms ) : ?>
+				<tr id="tlt-synonym-row-<?php echo esc_attr( $i ); ?>">
+					<td><?php echo esc_html( implode( ', ', $terms ) ); ?></td>
+					<td class="tlt-actions">
+						<button type="button" class="button tlt-delete-synonym" data-index="<?php echo esc_attr( $i ); ?>"><?php esc_html_e( 'Delete', 'tlt-search' ); ?></button>
+					</td>
+				</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+	<?php endif; ?>
+</div>
+
 		</div>
-		<div class="container">
-			<div class="columns">
-				<div class="column col-lg-6">
-					<div class="card p-1">
-						<div class="card-header">
-							<div class="card-title h3 text-bold mb-2"><?php esc_html_e( 'Existing Synonym Groups', 'tlt-search' ); ?></div>
-						</div>
-						<div class="card-body">
-							<?php if ( empty( $groups ) ) : ?>
-								<p><?php esc_html_e( 'No synonym groups defined yet.', 'tlt-search' ); ?></p>
-							<?php else : ?>
-								<table class="table table-hover" id="tlt-synonyms-table">
-									<thead>
-										<tr>
-											<th style="width:60px;">#</th>
-											<th><?php esc_html_e( 'Terms', 'tlt-search' ); ?></th>
-											<th style="width:80px;text-align:center;"><?php esc_html_e( 'Remove', 'tlt-search' ); ?></th>
-										</tr>
-									</thead>
-									<tbody>
-										<?php foreach ( $groups as $i => $terms ) : ?>
-										<tr id="tlt-synonym-row-<?php echo esc_attr( $i ); ?>">
-											<td><?php echo esc_html( $i + 1 ); ?></td>
-											<td><?php echo esc_html( implode( ', ', $terms ) ); ?></td>
-											<td style="text-align:center;">
-												<button class="btn btn-error btn-sm tlt-remove-pin" data-index="<?php echo esc_attr( $i ); ?>"><i class="icon icon-delete"></i></button>
-											</td>
-										</tr>
-										<?php endforeach; ?>
-									</tbody>
-								</table>
-							<?php endif; ?>
-						</div>
-					</div>
-				</div>
-				<div class="column col-lg-6">
-					<div class="card p-1">
-						<div class="card-header">
-							<div class="card-title h3 text-bold mb-2"><?php esc_html_e( 'Add Synonym Group', 'tlt-search' ); ?></div>
-							<div class="card-subtitle"><?php esc_html_e( 'Enter two or more comma-separated terms. Changes take effect immediately; no index rebuild required.', 'tlt-search' ); ?></div>
-						</div>
-						<div class="card-body">
-							<div class="input-group">
-								<input type="text" id="tlt-synonym-input" class="form-input" placeholder="<?php esc_attr_e( 'e.g. tote bag, totebag, tote-bag', 'tlt-search' ); ?>" />
-								<button id="tlt-add-synonym-btn" class="btn btn-primary input-group-btn"><?php esc_html_e( 'Add Group', 'tlt-search' ); ?></button>
-							</div>
-							<p id="tlt-synonym-msg"></p>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>	
+	</div>
 </div>

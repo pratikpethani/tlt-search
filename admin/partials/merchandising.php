@@ -6,138 +6,82 @@ use TLTSuite\TLTSearch\Merchandising\PinManager;
 $pin_manager = new PinManager();
 $all_pins    = $pin_manager->get_all_pins_grouped();
 $rules       = \TLTSuite\TLTSearch\Merchandising\RankingRules::all();
+
+$tlt_page = 'merchandising';
+require __DIR__ . '/header.php';
 ?>
 
-<div id="tlt-suite">
-	<div class="tlt-suite tlt-settings-page">
-		<div class="container py-2">
-			<div class="columns">
-				<div class="column col-lg-12">
-					<h1 class="text-bold mb-2"><?php esc_html_e( 'TLT Search — Merchandising', 'tlt-search' ); ?></h1>
-					<p><?php esc_html_e( 'Pin specific products to the top of search results for given queries. Pinned products always appear first, regardless of relevance score.', 'tlt-search' ); ?></p>
-				</div>
-			</div>
-		</div>
-		<div class="container">
-			<div class="columns">
-				<div class="column col-lg-6">
-					<div class="card p-1">
-						<div class="card-header">
-							<div class="card-title h3 text-bold mb-2"><?php esc_html_e( 'Pin a Product', 'tlt-search' ); ?></div>
-							<form class="form-horizontal" style="max-width:720px;">
-								<div class="form-group">
-									<div class="col-4 col-sm-12">
-										<label for="tlt-pin-query" class="form-label"><?php esc_html_e( 'Search Query', 'tlt-search' ); ?></label>
-									</div>
-									<div class="col-8 col-sm-12">
-										<div class="input-group">
-											<input class="form-input" type="text" id="tlt-pin-query" placeholder="<?php esc_attr_e( 'e.g. tote bag', 'tlt-search' ); ?>">
-											<button id="tlt-pin-search-btn" class="btn btn-primary input-group-btn"><?php esc_html_e( 'Search Products', 'tlt-search' ); ?></button>
-										</div>
-										<p class="description"><?php esc_html_e( 'Enter the exact query shoppers would type, then search to see current results.', 'tlt-search' ); ?></p>
-									</div>
-								</div>
-							</form>
-						</div>
-						<div class="card-body">
-							<div id="tlt-pin-results"></div>
-						</div>
-					</div>
-				</div>
-				<div class="column col-lg-6">
-					<div class="card p-1">
-						<div class="card-header">
-							<div class="card-title h3 text-bold mb-2"><?php esc_html_e( 'Pinned Products', 'tlt-search' ); ?></div>
-							<p class="description"><?php esc_html_e( 'View and manage pinned products for all queries.', 'tlt-search' ); ?></p>
-						</div>
-						<div class="card-body">
-							<?php if ( ! empty( $all_pins ) ) : ?>
-									<?php foreach ( $all_pins as $query_term => $pins ) : ?>
-									<div class="tile mb-2">
-										<div class="tile-content">
-											<p class="tile-title text-bold text-primary mb-0 bg-secondary"><?php echo esc_html( $query_term ); ?></p>
-											<table class="table">
-												<thead>
-													<tr>
-														<th style="width:60px;"><?php esc_html_e( 'Pos.', 'tlt-search' ); ?></th>
-														<th><?php esc_html_e( 'Product', 'tlt-search' ); ?></th>
-														<th style="width:80px;text-align:center;"><?php esc_html_e( 'Remove', 'tlt-search' ); ?></th>
-													</tr>
-												</thead>
-												<tbody>
-													<?php foreach ( $pins as $pin ) :
-														$product = wc_get_product( (int) $pin['product_id'] );
-													?>
-													<tr>
-														<td><?php echo esc_html( (int) $pin['position'] + 1 ); ?></td>
-														<td>
-															<?php if ( $product ) : ?>
-																<a href="<?php echo esc_url( get_edit_post_link( (int) $pin['product_id'] ) ); ?>">
-																	<?php echo esc_html( $product->get_name() ); ?>
-																</a>
-																<span style="color:#888;font-size:0.85em;">
-																	#<?php echo esc_html( $pin['product_id'] ); ?>
-																	<?php if ( $product->get_sku() ) echo ' &mdash; SKU: ' . esc_html( $product->get_sku() ); ?>
-																</span>
-															<?php else : ?>
-																<span style="color:#d63638;"><?php esc_html_e( 'Product not found', 'tlt-search' ); ?> (#<?php echo esc_html( $pin['product_id'] ); ?>)</span>
-															<?php endif; ?>
-														</td>
-														<td style="text-align:center;">
-															<button class="btn btn-error btn-sm tlt-remove-pin" data-pin-id="<?php echo esc_attr( $pin['id'] ); ?>"
-															><i class="icon icon-delete"></i></button>
-														</td>
-													</tr>
-													<?php endforeach; ?>
-												</tbody>
-											</table>
-										</div>
-									</div>
-									<?php endforeach; ?>
+<div class="tlt-box">
+	<h2><?php esc_html_e( 'Choose which products show first', 'tlt-search' ); ?></h2>
+	<div class="tlt-inline">
+		<input type="text" id="tlt-pin-query" aria-label="<?php esc_attr_e( 'Search words', 'tlt-search' ); ?>" placeholder="<?php esc_attr_e( 'e.g. tote bag', 'tlt-search' ); ?>">
+		<button type="button" id="tlt-pin-search-btn" class="button button-primary"><?php esc_html_e( 'Find products', 'tlt-search' ); ?></button>
+	</div>
+	<p class="tlt-help"><?php esc_html_e( 'Type what a shopper would search for, then pick an action for a product.', 'tlt-search' ); ?></p>
+	<ul class="tlt-legend">
+		<li><strong><?php esc_html_e( 'Pin', 'tlt-search' ); ?></strong> — <?php esc_html_e( 'always first for these search words.', 'tlt-search' ); ?></li>
+		<li><strong><?php esc_html_e( 'Boost', 'tlt-search' ); ?></strong> — <?php esc_html_e( 'higher in every search sorted by best match.', 'tlt-search' ); ?></li>
+		<li><strong><?php esc_html_e( 'Bury', 'tlt-search' ); ?></strong> — <?php esc_html_e( 'lower in every search sorted by best match.', 'tlt-search' ); ?></li>
+	</ul>
+	<div id="tlt-pin-results"></div>
+</div>
+
+<div class="tlt-box">
+	<h2><?php esc_html_e( 'Pinned products', 'tlt-search' ); ?></h2>
+	<?php if ( ! empty( $all_pins ) ) : ?>
+		<?php foreach ( $all_pins as $query_term => $pins ) : ?>
+			<h3><?php echo esc_html( $query_term ); ?></h3>
+			<table class="table table-hover">
+				<tbody>
+					<?php foreach ( $pins as $pin ) :
+						$product = wc_get_product( (int) $pin['product_id'] );
+						?>
+						<tr>
+							<td class="tlt-pos"><?php echo esc_html( (int) $pin['position'] + 1 ); ?></td>
+							<td>
+								<?php if ( $product ) : ?>
+									<a href="<?php echo esc_url( get_edit_post_link( (int) $pin['product_id'] ) ); ?>"><?php echo esc_html( $product->get_name() ); ?></a>
+									<?php if ( $product->get_sku() ) : ?>
+										<span class="tlt-muted"><?php echo esc_html( 'SKU: ' . $product->get_sku() ); ?></span>
+									<?php endif; ?>
 								<?php else : ?>
-									<p><?php esc_html_e( 'No pinned products yet. Search for a query above and pin results to get started.', 'tlt-search' ); ?></p>
-							<?php endif; ?>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	<div class="container mt-2">
-		<div class="columns">
-			<div class="column col-12">
-				<div class="card p-1">
-					<div class="card-header">
-						<div class="card-title h3 text-bold mb-2"><?php esc_html_e( 'Boost / Bury Rules', 'tlt-search' ); ?></div>
-						<p class="description"><?php esc_html_e( 'Boosted products rank above other results for every search, buried products rank below them. Pins still come first. Applies to the default relevance order only. Use the Boost and Bury buttons in the product search above.', 'tlt-search' ); ?></p>
-					</div>
-					<div class="card-body">
-						<?php if ( $rules ) : ?>
-						<table class="table">
-							<tbody>
-							<?php foreach ( $rules as $rule_pid => $rule_mode ) :
-								$rule_product = wc_get_product( (int) $rule_pid );
-							?>
-								<tr>
-									<td><?php echo esc_html( 'boost' === $rule_mode ? __( 'Boost', 'tlt-search' ) : __( 'Bury', 'tlt-search' ) ); ?></td>
-									<td><?php echo esc_html( $rule_product ? $rule_product->get_name() : __( 'Product not found', 'tlt-search' ) ); ?> <span style="color:#888;font-size:0.85em;">#<?php echo esc_html( $rule_pid ); ?></span></td>
-									<td style="width:80px;text-align:center;"><button class="btn btn-error btn-sm tlt-remove-rule" data-product-id="<?php echo esc_attr( $rule_pid ); ?>"><i class="icon icon-delete"></i></button></td>
-								</tr>
-							<?php endforeach; ?>
-							</tbody>
-						</table>
-						<?php else : ?>
-							<p><?php esc_html_e( 'No boost or bury rules yet.', 'tlt-search' ); ?></p>
-						<?php endif; ?>
-					</div>
-				</div>
-			</div>
+									<?php esc_html_e( 'Product not found', 'tlt-search' ); ?> (#<?php echo esc_html( $pin['product_id'] ); ?>)
+								<?php endif; ?>
+							</td>
+							<td class="tlt-actions">
+								<button type="button" class="button tlt-remove-pin" data-pin-id="<?php echo esc_attr( $pin['id'] ); ?>"><?php esc_html_e( 'Remove', 'tlt-search' ); ?></button>
+							</td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		<?php endforeach; ?>
+	<?php else : ?>
+		<p><?php esc_html_e( 'No pinned products yet.', 'tlt-search' ); ?></p>
+	<?php endif; ?>
+</div>
+
+<div class="tlt-box">
+	<h2><?php esc_html_e( 'Boosted and buried products', 'tlt-search' ); ?></h2>
+	<?php if ( $rules ) : ?>
+		<table class="table">
+			<tbody>
+				<?php foreach ( $rules as $rule_pid => $rule_mode ) :
+					$rule_product = wc_get_product( (int) $rule_pid );
+					?>
+					<tr>
+						<td class="tlt-pos"><?php echo esc_html( 'boost' === $rule_mode ? __( 'Boost', 'tlt-search' ) : __( 'Bury', 'tlt-search' ) ); ?></td>
+						<td><?php echo esc_html( $rule_product ? $rule_product->get_name() : __( 'Product not found', 'tlt-search' ) ); ?> <span class="tlt-muted">#<?php echo esc_html( $rule_pid ); ?></span></td>
+						<td class="tlt-actions"><button type="button" class="button tlt-remove-rule" data-product-id="<?php echo esc_attr( $rule_pid ); ?>"><?php esc_html_e( 'Remove', 'tlt-search' ); ?></button></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+	<?php else : ?>
+		<p><?php esc_html_e( 'None yet.', 'tlt-search' ); ?></p>
+	<?php endif; ?>
+</div>
+
 		</div>
 	</div>
-
-	</div>
-
-	
-
-	
-
 </div>

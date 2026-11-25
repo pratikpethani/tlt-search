@@ -18,10 +18,10 @@
 		if ( $btn.length ) {
 
 			$btn.on('click', function () {
-				$btn.prop('disabled', true).text('Preparing…');
+				$btn.prop('disabled', true).text('Starting…');
 				$progress.show();
 				$bar.css('width', '0%');
-				$text.text('Clearing existing index…');
+				$text.text('Getting ready…');
 
 				$.post(ajaxUrl, {
 					action : 'tlt_search_init_rebuild',
@@ -44,7 +44,7 @@
 		}
 
 		function indexBatch(offset, total) {
-			$text.text('Indexing ' + offset + ' / ' + total + '…');
+			$text.text('Updating ' + offset + ' / ' + total + '…');
 
 			$.post(ajaxUrl, {
 				action    : 'tlt_search_index_batch',
@@ -60,7 +60,7 @@
 				var newOffset = offset + res.data.count;
 				var pct       = total > 0 ? Math.min(100, Math.round(newOffset / total * 100)) : 100;
 				$bar.css('width', pct + '%');
-				$text.text('Indexing ' + newOffset + ' / ' + total + '…');
+				$text.text('Updating ' + newOffset + ' / ' + total + '…');
 
 				if ( res.data.done ) {
 					showDone(newOffset, total);
@@ -75,14 +75,14 @@
 
 		function showDone(indexed) {
 			$bar.css('width', '100%');
-			$text.html('<strong style="color:#0a8a0a;"><i class="icon icon-check"></i> Done — ' + indexed + ' products indexed.</strong>');
-			$btn.prop('disabled', false).text('Rebuild Index');
+			$text.html('<strong style="color:#0a8a0a;"><i class="icon icon-check"></i> Done — ' + indexed + ' products updated.</strong>');
+			$btn.prop('disabled', false).text('Update search data');
 			setTimeout(function () { location.reload(); }, 1500);
 		}
 
 		function showError(msg) {
 			$text.html('<strong style="color:#d63638;">Error: ' + msg + '</strong>');
-			$btn.prop('disabled', false).text('Rebuild Index');
+			$btn.prop('disabled', false).text('Update search data');
 		}
 
 		// ── Synonyms Manager ─────────────────────────────────────────────────
@@ -142,15 +142,46 @@
 			})
 			.done(function (res) {
 				if ( res.success ) {
-					$('#tlt-synonym-row-' + index).fadeOut(300, function () {
-						$(this).remove();
-					});
+					// Groups are renumbered after a delete, so reload to get fresh indexes.
+					location.reload();
+				} else {
+					$btn.prop('disabled', false);
 				}
 			})
 			.fail(function () {
 				$btn.prop('disabled', false);
 			});
 		});
+
+		// ── Settings tabs ────────────────────────────────────────────────────
+
+		// Only the Settings page links carry data-tab (Analytics reuses the style for plain links).
+		var $tabs = $('.tlt-subtabs .nav-tab[data-tab]');
+
+		if ( $tabs.length ) {
+
+			var showTab = function (tab) {
+				if ( ! $tabs.filter('[data-tab="' + tab + '"]').length ) tab = 'search';
+				$tabs.removeClass('nav-tab-active').removeAttr('aria-current');
+				$tabs.filter('[data-tab="' + tab + '"]').addClass('nav-tab-active').attr('aria-current', 'true');
+				$('.tlt-tab-panel').prop('hidden', true).filter('[data-panel="' + tab + '"]').prop('hidden', false);
+				// Remembered so the same tab is open again after saving.
+				sessionStorage.setItem('tltSettingsTab', tab);
+			};
+
+			$tabs.on('click', function (e) {
+				e.preventDefault();
+				showTab($(this).data('tab'));
+			});
+
+			// An invalid field on a hidden tab would block saving silently: open its tab.
+			$('.tlt-tab-panel :input').on('invalid', function () {
+				// First invalid field wins. Native selector: jQuery has no :invalid.
+				showTab($(this.form.querySelector('input:invalid')).closest('.tlt-tab-panel').data('panel'));
+			});
+
+			showTab(sessionStorage.getItem('tltSettingsTab'));
+		}
 
 		// ── Merchandising ─────────────────────────────────────────────────────
 
@@ -203,7 +234,7 @@
 					$pinResults.html('<p style="color:#d63638;">Search failed — check your error log.</p>');
 				})
 				.always(function () {
-					$pinSearchBtn.prop('disabled', false).text('Search Products');
+					$pinSearchBtn.prop('disabled', false).text('Find products');
 				});
 			});
 
@@ -343,7 +374,7 @@
 				var termId = $catSelect.val();
 				if ( ! termId ) return;
 
-				$partialBtn.prop('disabled', true).text('Reindexing…');
+				$partialBtn.prop('disabled', true).text('Updating…');
 				$partialStatus.text('');
 
 				$.post(ajaxUrl, {
@@ -357,7 +388,7 @@
 					} else {
 						$partialStatus.html(
 							'<span style="color:#0a8a0a;font-weight:600;"><i class="icon icon-check"></i> ' +
-							res.data.count + ' product(s) re-indexed.</span>'
+							res.data.count + ' product(s) updated.</span>'
 						);
 					}
 				})
@@ -365,7 +396,7 @@
 					$partialStatus.html('<span style="color:#d63638;">Server error — check your error log.</span>');
 				})
 				.always(function () {
-					$partialBtn.prop('disabled', false).text('Reindex Category');
+					$partialBtn.prop('disabled', false).text('Update category');
 				});
 			});
 		}
