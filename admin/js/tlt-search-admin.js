@@ -238,6 +238,24 @@
 			});
 		});
 
+		// Analytics: bar chart (Chart.js) and sortable/searchable tables (simple-datatables).
+		var chartEl = document.getElementById('tlt-volume-chart');
+		if ( chartEl && window.Chart ) {
+			new window.Chart(chartEl, {
+				type: 'bar',
+				data: {
+					labels   : JSON.parse(chartEl.dataset.labels || '[]'),
+					datasets : [{ label: chartEl.dataset.label, data: JSON.parse(chartEl.dataset.values || '[]'), backgroundColor: '#5755d9' }],
+				},
+				options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
+			});
+		}
+		if ( window.simpleDatatables ) {
+			document.querySelectorAll('table.tlt-datatable').forEach(function (t) {
+				new window.simpleDatatables.DataTable(t, { perPage: 10, perPageSelect: false });
+			});
+		}
+
 		// Zero-result list: one-click synonym.
 		$(document).on('click', '.tlt-zero-add-synonym', function () {
 			var $btn  = $(this);

@@ -16,7 +16,11 @@ $no_results = $report->no_result_searches( $days, 20 );
 $clicks     = $report->click_summary( $days );
 $top_clicked = $report->top_clicked( $days, 10 );
 $volume      = $report->search_volume_by_day( $days );
-$vol_max     = max( 1, ...array_map( 'intval', array_column( $volume, 'search_count' ) ?: [ 1 ] ) );
+
+$vendor = plugin_dir_url( dirname( __DIR__, 2 ) . '/tlt-search.php' ) . 'assets/vendor/';
+wp_enqueue_style( 'tlt-simple-datatables', $vendor . 'simple-datatables.css', [], '9.2.1' );
+wp_enqueue_script( 'tlt-chartjs', $vendor . 'chart.umd.js', [], '4.4.7', true );
+wp_enqueue_script( 'tlt-simple-datatables', $vendor . 'simple-datatables.js', [], '9.2.1', true );
 
 $current_url = admin_url( 'admin.php?page=tlt-search-analytics' );
 
@@ -64,14 +68,11 @@ function tlt_days_link( string $base_url, int $days, int $current_days ): string
 							<?php if ( empty( $volume ) ) : ?>
 								<p><?php esc_html_e( 'No searches in this period.', 'tlt-search' ); ?></p>
 							<?php else : ?>
-								<div style="display:flex;align-items:flex-end;gap:2px;height:120px;">
-									<?php foreach ( $volume as $day ) : $h = max( 2, (int) round( 120 * (int) $day['search_count'] / $vol_max ) ); ?>
-										<div title="<?php echo esc_attr( $day['search_date'] . ': ' . $day['search_count'] ); ?>" style="flex:1;height:<?php echo (int) $h; ?>px;background:#5755d9;border-radius:2px 2px 0 0;min-width:2px;"></div>
-									<?php endforeach; ?>
-								</div>
-								<div style="display:flex;justify-content:space-between;color:#888;font-size:0.85em;margin-top:4px;">
-									<span><?php echo esc_html( $volume[0]['search_date'] ); ?></span>
-									<span><?php echo esc_html( $volume[ count( $volume ) - 1 ]['search_date'] ); ?></span>
+								<div style="position:relative;height:220px;">
+									<canvas id="tlt-volume-chart"
+										data-labels="<?php echo esc_attr( wp_json_encode( array_column( $volume, 'search_date' ) ) ); ?>"
+										data-values="<?php echo esc_attr( wp_json_encode( array_map( 'intval', array_column( $volume, 'search_count' ) ) ) ); ?>"
+										data-label="<?php esc_attr_e( 'Searches', 'tlt-search' ); ?>"></canvas>
 								</div>
 							<?php endif; ?>
 						</div>
@@ -117,7 +118,7 @@ function tlt_days_link( string $base_url, int $days, int $current_days ): string
 									<p class="empty-subtitle"><?php esc_html_e( 'No data yet for this period.', 'tlt-search' ); ?></p>
 								</div>
 							<?php else : ?>
-							<table class="table table-hover">
+							<table class="table table-hover tlt-datatable">
 								<thead>
 									<tr>
 										<th><?php esc_html_e( 'Query', 'tlt-search' ); ?></th>
@@ -154,7 +155,7 @@ function tlt_days_link( string $base_url, int $days, int $current_days ): string
 									<p class="empty-subtitle"><?php esc_html_e( 'No zero-result searches in this period. Great!', 'tlt-search' ); ?></p>
 								</div>
 							<?php else : ?>
-							<table class="table table-hover" style="max-width:100%;">
+							<table class="table table-hover tlt-datatable" style="max-width:100%;">
 								<thead>
 									<tr>
 										<th><?php esc_html_e( 'Query', 'tlt-search' ); ?></th>
@@ -197,7 +198,7 @@ function tlt_days_link( string $base_url, int $days, int $current_days ): string
 							<?php if ( empty( $top_clicked ) ) : ?>
 								<div class="empty"><p class="empty-subtitle"><?php esc_html_e( 'No clicks recorded for this period yet.', 'tlt-search' ); ?></p></div>
 							<?php else : ?>
-							<table class="table table-hover">
+							<table class="table table-hover tlt-datatable">
 								<thead><tr><th><?php esc_html_e( 'Product', 'tlt-search' ); ?></th><th><?php esc_html_e( 'Clicks', 'tlt-search' ); ?></th></tr></thead>
 								<tbody>
 								<?php foreach ( $top_clicked as $row ) : ?>
