@@ -5,7 +5,7 @@ $show_filters  = filter_var( $atts['show_filters'] ?? 'true', FILTER_VALIDATE_BO
 $show_filters_js = $show_filters ? 'true' : 'false';
 ?>
 
-<div class="tlt-search" x-data="TLTSearch({showFilters: <?php echo $show_filters_js; ?>})">
+<div class="tlt-search" x-data="TLTSearch({showFilters: <?php echo $show_filters_js; ?>})" @click.outside="closeResults()">
 
 	<!-- Search Input -->
 	<div class="tlt-search__field">
@@ -14,6 +14,16 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 			class="tlt-search__input"
 			x-model="query"
 			@input.debounce.300ms="search()"
+			@keydown.arrow-down.prevent="moveActive(1)"
+			@keydown.arrow-up.prevent="moveActive(-1)"
+			@keydown.enter="if (activeIndex > -1) { $event.preventDefault(); openActive(); }"
+			@keydown.escape="closeResults()"
+			role="combobox"
+			aria-expanded="false"
+			:aria-expanded="hasResults() && hasSearched ? 'true' : 'false'"
+			aria-controls="tlt-search-listbox"
+			aria-autocomplete="list"
+			:aria-activedescendant="activeIndex > -1 ? 'tlt-search-opt-' + results[activeIndex].id : null"
 			placeholder="<?php echo esc_attr( $placeholder ); ?>"
 			autocomplete="off"
 			aria-label="<?php esc_attr_e( 'Search products', 'tlt-search' ); ?>"
@@ -195,9 +205,9 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 	</p>
 
 	<!-- Results List -->
-	<ul class="tlt-search__results" x-show="hasResults()" role="list">
-		<template x-for="result in results" :key="result.id">
-			<li class="tlt-search__result">
+	<ul class="tlt-search__results" id="tlt-search-listbox" x-show="hasResults()" role="listbox">
+		<template x-for="(result, i) in results" :key="result.id">
+			<li class="tlt-search__result" :class="{ 'tlt-search__result--active': i === activeIndex }" :id="'tlt-search-opt-' + result.id" role="option" :aria-selected="i === activeIndex ? 'true' : 'false'" @mouseenter="activeIndex = i">
 				<a :href="result.permalink" class="tlt-search__result-link">
 
 					<img
@@ -210,7 +220,12 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 					/>
 
 					<div class="tlt-search__result-body">
-						<span class="tlt-search__result-title" x-text="result.title"></span>
+						<span class="tlt-search__result-title" x-html="highlight(result.title)"></span>
+						<span class="tlt-search__badges">
+							<span class="tlt-search__badge tlt-search__badge--sale" x-show="result.on_sale"><?php esc_html_e( 'Sale', 'tlt-search' ); ?></span>
+							<span class="tlt-search__badge tlt-search__badge--featured" x-show="result.featured"><?php esc_html_e( 'Featured', 'tlt-search' ); ?></span>
+							<span class="tlt-search__badge tlt-search__badge--out" x-show="result.stock_status === 'outofstock'"><?php esc_html_e( 'Out of stock', 'tlt-search' ); ?></span>
+						</span>
 						<span class="tlt-search__result-price" x-html="result.price"></span>
 					</div>
 

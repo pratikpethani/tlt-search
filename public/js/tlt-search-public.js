@@ -32,10 +32,38 @@ document.addEventListener( 'alpine:init', () => {
 			price: null,
 		},
 
+		activeIndex: -1,
+
 		init() {},
+
+		// Escape HTML, then wrap query words in <mark>. Safe for x-html.
+		highlight( text ) {
+			const esc = s => String( s ).replace( /[&<>"']/g, c => ( { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ c ] ) );
+			const safe = esc( text ?? '' );
+			const words = this.query.trim().split( /\s+/ ).filter( w => w.length > 1 ).map( w => esc( w ).replace( /[.*+?^${}()|[\]\\]/g, '\\$&' ) );
+			if ( ! words.length ) return safe;
+			return safe.replace( new RegExp( '(' + words.join( '|' ) + ')', 'gi' ), '<mark>$1</mark>' );
+		},
+
+		moveActive( step ) {
+			if ( ! this.results.length ) return;
+			this.activeIndex = ( this.activeIndex + step + this.results.length ) % this.results.length;
+			this.$nextTick( () => this.$root.querySelector( '.tlt-search__result--active' )?.scrollIntoView( { block: 'nearest' } ) );
+		},
+
+		openActive() {
+			const r = this.results[ this.activeIndex ];
+			if ( r ) window.location.href = r.permalink;
+		},
+
+		closeResults() {
+			this.activeIndex = -1;
+			this.hasSearched = false;
+		},
 
 		async search() {
 			this.page = 1;
+			this.activeIndex = -1;
 			this.filters.categories  = [];
 			this.filters.brands      = [];
 			this.filters.tags        = [];
@@ -83,6 +111,7 @@ document.addEventListener( 'alpine:init', () => {
 				const json = await response.json();
 
 				if ( json.success ) {
+					this.activeIndex = -1;
 					this.results    = json.data.results;
 					this.total      = json.data.total;
 					this.totalPages = json.data.total_pages;

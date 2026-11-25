@@ -11,6 +11,7 @@ class ResultTransformer {
 		);
 
 		$raw_price = $document['price'] ?? '';
+		$product   = wc_get_product( $product_id );
 
 		return [
 			'id'           => $product_id,
@@ -19,6 +20,7 @@ class ResultTransformer {
 			'price'        => is_numeric( $raw_price ) ? wc_price( $raw_price ) : '',
 			'stock_status' => $document['stock_status'] ?? '',
 			'featured'     => (bool) ( $document['featured'] ?? false ),
+			'on_sale'      => $product ? $product->is_on_sale() : false,
 			'permalink'    => get_permalink( $product_id ),
 			'image'        => get_the_post_thumbnail_url( $product_id, 'woocommerce_thumbnail' ) ?: wc_placeholder_img_src( 'woocommerce_thumbnail' ),
 			'is_pinned'    => (bool) ( $document['_pinned'] ?? false ),

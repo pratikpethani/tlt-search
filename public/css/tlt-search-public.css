@@ -48,3 +48,11 @@
 @keyframes tlt-spin {
  to { transform: rotate(360deg); }
 }
+
+.tlt-search .tlt-search__results-container .tlt-search__result--active .tlt-search__result-link { background: #f0f6fa; }
+.tlt-search .tlt-search__result-title mark { background: #fff3a3; color: inherit; padding: 0; }
+.tlt-search .tlt-search__badges { display: flex; gap: 0.3em; flex-wrap: wrap; }
+.tlt-search .tlt-search__badge { padding: 0 0.5em; border-radius: 10px; font-size: 0.7em; font-weight: 600; line-height: 1.7; color: #fff; }
+.tlt-search .tlt-search__badge--sale { background: #c0392b; }
+.tlt-search .tlt-search__badge--featured { background: #007cba; }
+.tlt-search .tlt-search__badge--out { background: #777; }
