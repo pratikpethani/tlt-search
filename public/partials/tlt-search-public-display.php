@@ -43,6 +43,16 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 			<?php esc_html_e( 'result(s)', 'tlt-search' ); ?>
 		</span>
 
+		<label class="tlt-search__sort">
+			<span class="screen-reader-text"><?php esc_html_e( 'Sort by', 'tlt-search' ); ?></span>
+			<select x-model="sort" @change="changeSort()" aria-label="<?php esc_attr_e( 'Sort results', 'tlt-search' ); ?>">
+				<option value="relevance"><?php esc_html_e( 'Best match', 'tlt-search' ); ?></option>
+				<option value="price_asc"><?php esc_html_e( 'Price: low to high', 'tlt-search' ); ?></option>
+				<option value="price_desc"><?php esc_html_e( 'Price: high to low', 'tlt-search' ); ?></option>
+				<option value="title_asc"><?php esc_html_e( 'Name: A to Z', 'tlt-search' ); ?></option>
+			</select>
+		</label>
+
 		<template x-if="showFilters && hasFacets()">
 			<div class="tlt-search__filter-controls">
 				<button

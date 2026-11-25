@@ -82,6 +82,43 @@ class FacetBuilder {
 	}
 
 	/**
+	 * Build the facet payload from Loupe's native facet distribution.
+	 *
+	 * @param array<string,array<string,int>> $dist   attribute => value => count
+	 * @param array                           $active Active filters (same keys as apply_filters)
+	 * @param array{min:float,max:float}|null $range  Price range of all matching products
+	 */
+	public function from_distribution( array $dist, array $active, ?array $range ): array {
+
+		$sel = static fn( string $key ): array => array_map( 'strval', (array) ( $active[ $key ] ?? [] ) );
+		$stock = (string) ( $active['stock_status'] ?? '' );
+
+		$counts = static function ( array $values ): array {
+			$values = array_filter( $values, static fn( $c, $v ) => '' !== (string) $v && $c > 0, ARRAY_FILTER_USE_BOTH );
+			arsort( $values );
+			return $values;
+		};
+
+		$price = null;
+		if ( null !== $range ) {
+			$price = [
+				'min'          => round( $range['min'], 2 ),
+				'max'          => round( $range['max'], 2 ),
+				'selected_min' => ( isset( $active['price_min'] ) && '' !== (string) $active['price_min'] ) ? (float) $active['price_min'] : null,
+				'selected_max' => ( isset( $active['price_max'] ) && '' !== (string) $active['price_max'] ) ? (float) $active['price_max'] : null,
+			];
+		}
+
+		return [
+			'categories'   => $this->build_option_list( $counts( (array) ( $dist['categories'] ?? [] ) ), $sel( 'categories' ) ),
+			'brands'       => $this->build_option_list( $counts( (array) ( $dist['brands'] ?? [] ) ), $sel( 'brands' ) ),
+			'tags'         => $this->build_option_list( $counts( (array) ( $dist['tags'] ?? [] ) ), $sel( 'tags' ) ),
+			'stock_status' => $this->build_option_list( $counts( (array) ( $dist['stock_status'] ?? [] ) ), '' !== $stock ? [ $stock ] : [] ),
+			'price'        => $price,
+		];
+	}
+
+	/**
 	 * Filter a hit set in PHP according to the given filters.
 	 * Returns hits unchanged if no filters are active.
 	 *

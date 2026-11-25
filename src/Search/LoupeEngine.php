@@ -84,6 +84,13 @@ class LoupeEngine implements SearchEngineInterface {
 		return $this->loupe->search( $params )->getHits();
 	}
 
+	/**
+	 * Run a fully-built Loupe query and return the raw result (hits, totals, facets).
+	 */
+	public function query( SearchParameters $params ): \Loupe\Loupe\SearchResult {
+		return $this->loupe->search( $params );
+	}
+
 	private function get_site_language(): string {
 
 		$wplang = (string) get_option( 'WPLANG', 'en_US' );

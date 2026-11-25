@@ -51,6 +51,13 @@ class SearchRequestValidator {
 		);
 	}
 
+	public function get_sort( WP_REST_Request $request ): string {
+
+		$sort = sanitize_key( (string) $request->get_param( 'sort' ) );
+
+		return isset( \TLTSuite\TLTSearch\Search\SearchManager::SORTS[ $sort ] ) ? $sort : 'relevance';
+	}
+
 	public function get_page( WP_REST_Request $request ): int {
 
 		$page = absint(

@@ -33,6 +33,7 @@ document.addEventListener( 'alpine:init', () => {
 		},
 
 		activeIndex: -1,
+		sort: 'relevance',
 
 		init() {},
 
@@ -89,6 +90,9 @@ document.addEventListener( 'alpine:init', () => {
 				url.searchParams.set( 'q',        this.query );
 				url.searchParams.set( 'page',     this.page );
 				url.searchParams.set( 'per_page', this.perPage );
+				if ( this.sort !== 'relevance' ) {
+					url.searchParams.set( 'sort', this.sort );
+				}
 
 				this.filters.categories.forEach( v => url.searchParams.append( 'categories[]', v ) );
 				this.filters.brands.forEach( v => url.searchParams.append( 'brands[]', v ) );
@@ -138,6 +142,11 @@ document.addEventListener( 'alpine:init', () => {
 			} else {
 				this.filters[ type ].splice( idx, 1 );
 			}
+			this.page = 1;
+			await this.fetchResults();
+		},
+
+		async changeSort() {
 			this.page = 1;
 			await this.fetchResults();
 		},
