@@ -129,6 +129,7 @@ class FacetBuilder {
 	public function apply_filters( array $hits, array $filters ): array {
 
 		$categories = array_filter( array_map( 'strval', (array) ( $filters['categories'] ?? [] ) ) );
+		$scope      = array_filter( array_map( 'strval', (array) ( $filters['scope_categories'] ?? [] ) ) );
 		$brands     = array_filter( array_map( 'strval', (array) ( $filters['brands'] ?? [] ) ) );
 		$tags       = array_filter( array_map( 'strval', (array) ( $filters['tags'] ?? [] ) ) );
 		$stock      = (string) ( $filters['stock_status'] ?? '' );
@@ -137,13 +138,17 @@ class FacetBuilder {
 		$price_max  = ( isset( $filters['price_max'] ) && '' !== (string) $filters['price_max'] )
 			? (float) $filters['price_max'] : null;
 
-		if ( empty( $categories ) && empty( $brands ) && empty( $tags )
+		if ( empty( $scope ) && empty( $categories ) && empty( $brands ) && empty( $tags )
 			&& '' === $stock && null === $price_min && null === $price_max ) {
 			return $hits;
 		}
 
-		return array_values( array_filter( $hits, function ( array $hit ) use ( $categories, $brands, $tags, $stock, $price_min, $price_max ): bool {
+		return array_values( array_filter( $hits, function ( array $hit ) use ( $scope, $categories, $brands, $tags, $stock, $price_min, $price_max ): bool {
 
+			if ( ! empty( $scope )
+				&& ! array_intersect( $scope, array_map( 'strval', (array) ( $hit['categories'] ?? [] ) ) ) ) {
+				return false;
+			}
 			if ( ! empty( $categories )
 				&& ! array_intersect( $categories, array_map( 'strval', (array) ( $hit['categories'] ?? [] ) ) ) ) {
 				return false;

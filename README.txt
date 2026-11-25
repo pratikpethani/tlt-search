@@ -25,6 +25,8 @@ TLT Search replaces the default WooCommerce search with a Loupe (SQLite) index k
 
 Usage: add the `[tlt_search]` shortcode, the "TLT Search" block, or the Elementor widget. Search results pages use the same engine.
 
+Each search box can have its own settings. Shortcode options: `placeholder`, `show_filters` (true/false), `category` (exact category names, comma separated, limits results to them), `per_page`, `layout` (list or grid). Example: `[tlt_search category="Lighting,Lamps" per_page="6" layout="grid"]`. The block and the Elementor widget have the same options.
+
 == Installation ==
 
 1. Upload the plugin folder to `/wp-content/plugins/` and activate it.

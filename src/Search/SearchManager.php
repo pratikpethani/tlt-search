@@ -156,6 +156,11 @@ class SearchManager {
 			$clauses[] = $lang_filter;
 		}
 
+		$scope = array_filter( (array) ( $filters['scope_categories'] ?? [] ), static fn( $v ) => '' !== (string) $v );
+		if ( $scope ) {
+			$clauses[] = '(' . implode( ' OR ', array_map( static fn( $v ) => 'categories = ' . $esc( $v ), $scope ) ) . ')';
+		}
+
 		foreach ( [ 'categories', 'brands', 'tags' ] as $attr ) {
 			$values = array_filter( (array) ( $filters[ $attr ] ?? [] ), static fn( $v ) => '' !== (string) $v );
 			if ( $values ) {

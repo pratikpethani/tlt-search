@@ -62,6 +62,39 @@ class Tlt_Search_Elementor_Widget extends Widget_Base {
 			]
 		);
 
+		$this->add_control(
+			'category',
+			[
+				'label'       => esc_html__( 'Only these categories', 'tlt-search' ),
+				'type'        => Controls_Manager::TEXT,
+				'description' => esc_html__( 'Exact category names, comma separated. Empty searches everything.', 'tlt-search' ),
+			]
+		);
+
+		$this->add_control(
+			'per_page',
+			[
+				'label'       => esc_html__( 'Results per page', 'tlt-search' ),
+				'type'        => Controls_Manager::NUMBER,
+				'min'         => 0,
+				'description' => esc_html__( '0 uses the site default.', 'tlt-search' ),
+			]
+		);
+
+		$this->add_control(
+			'layout',
+			[
+				'label'   => esc_html__( 'Layout', 'tlt-search' ),
+				'type'    => Controls_Manager::SELECT,
+				'default' => '',
+				'options' => [
+					''     => esc_html__( 'Site default', 'tlt-search' ),
+					'list' => esc_html__( 'List', 'tlt-search' ),
+					'grid' => esc_html__( 'Grid', 'tlt-search' ),
+				],
+			]
+		);
+
 		$this->end_controls_section();
 	}
 
@@ -73,6 +106,12 @@ class Tlt_Search_Elementor_Widget extends Widget_Base {
 
 		if ( ! empty( $settings['placeholder'] ) ) {
 			$atts['placeholder'] = $settings['placeholder'];
+		}
+
+		foreach ( [ 'category', 'per_page', 'layout' ] as $key ) {
+			if ( ! empty( $settings[ $key ] ) ) {
+				$atts[ $key ] = $settings[ $key ];
+			}
 		}
 
 		// Same output as the shortcode, called directly so nothing rewrites the markup.

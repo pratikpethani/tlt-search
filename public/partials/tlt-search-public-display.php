@@ -6,10 +6,19 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 ?>
 
 <?php
-$layout_class = 'grid' === \TLTSuite\TLTSearch\Search\SearchOptions::layout() ? ' tlt-search--grid' : '';
+$layout       = in_array( $atts['layout'] ?? '', [ 'list', 'grid' ], true ) ? $atts['layout'] : \TLTSuite\TLTSearch\Search\SearchOptions::layout();
+$layout_class = 'grid' === $layout ? ' tlt-search--grid' : '';
+$box_per_page = min( \TLTSuite\TLTSearch\API\SearchRequestValidator::MAX_PER_PAGE, absint( $atts['per_page'] ?? 0 ) );
+$box_config   = [ 'showFilters' => $show_filters ];
+if ( $box_per_page ) {
+	$box_config['perPage'] = $box_per_page;
+}
+if ( '' !== trim( (string) ( $atts['category'] ?? '' ) ) ) {
+	$box_config['scope'] = trim( (string) $atts['category'] );
+}
 $img_size     = \TLTSuite\TLTSearch\Search\SearchOptions::image_size();
 ?>
-<div class="tlt-search<?php echo esc_attr( $layout_class ); ?>" style="--tlt-img: <?php echo (int) $img_size; ?>px" x-data="TLTSearch({showFilters: <?php echo $show_filters_js; ?>})" @click.outside="closeResults()">
+<div class="tlt-search<?php echo esc_attr( $layout_class ); ?>" style="--tlt-img: <?php echo (int) $img_size; ?>px" x-data="TLTSearch(<?php echo esc_attr( wp_json_encode( $box_config ) ); ?>)" @click.outside="closeResults()">
 
 	<!-- Search Input -->
 	<div class="tlt-search__field">

@@ -97,6 +97,12 @@ class SearchRequestValidator {
 			$filters['categories'] = array_values( array_filter( array_map( 'sanitize_text_field', $categories ) ) );
 		}
 
+		// Per-search-box scope: exact category names, comma separated. Always ANDed with the shopper's filters.
+		$scope = array_values( array_filter( array_map( 'trim', explode( ',', sanitize_text_field( (string) $request->get_param( 'scope' ) ) ) ) ) );
+		if ( $scope ) {
+			$filters['scope_categories'] = $scope;
+		}
+
 		$brands = $request->get_param( 'brands' );
 		if ( ! empty( $brands ) && is_array( $brands ) ) {
 			$filters['brands'] = array_values( array_filter( array_map( 'sanitize_text_field', $brands ) ) );

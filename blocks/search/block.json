@@ -10,7 +10,10 @@
 	"textdomain": "tlt-search",
 	"attributes": {
 		"placeholder": { "type": "string", "default": "" },
-		"showFilters": { "type": "boolean", "default": true }
+		"showFilters": { "type": "boolean", "default": true },
+		"category": { "type": "string", "default": "" },
+		"perPage": { "type": "number", "default": 0 },
+		"layout": { "type": "string", "default": "" }
 	},
 	"supports": { "html": false, "align": [ "wide", "full" ] },
 	"editorScript": "file:./editor.js"

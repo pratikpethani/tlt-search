@@ -146,8 +146,13 @@ class Tlt_Search_Public {
 		$show = ! isset( $attributes['showFilters'] ) || $attributes['showFilters'] ? 'true' : 'false';
 		$code = '[tlt_search show_filters="' . $show . '"';
 
-		if ( ! empty( $attributes['placeholder'] ) ) {
-			$code .= ' placeholder="' . str_replace( [ '"', '[', ']' ], '', wp_strip_all_tags( $attributes['placeholder'] ) ) . '"';
+		foreach ( [ 'placeholder' => 'placeholder', 'category' => 'category', 'layout' => 'layout' ] as $key => $att ) {
+			if ( ! empty( $attributes[ $key ] ) ) {
+				$code .= ' ' . $att . '="' . str_replace( [ '"', '[', ']' ], '', wp_strip_all_tags( $attributes[ $key ] ) ) . '"';
+			}
+		}
+		if ( ! empty( $attributes['perPage'] ) ) {
+			$code .= ' per_page="' . absint( $attributes['perPage'] ) . '"';
 		}
 
 		return $code . ']';
@@ -159,6 +164,9 @@ class Tlt_Search_Public {
 			[
 				'placeholder'  => __( 'Search products…', 'tlt-search' ),
 				'show_filters' => 'true',
+				'category'     => '', // exact category names, comma separated
+				'per_page'     => '', // overrides the global setting
+				'layout'       => '', // list | grid, overrides the global setting
 			],
 			$atts,
 			'tlt_search'

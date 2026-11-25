@@ -36,7 +36,9 @@ function absint( $n ) { return abs( (int) $n ); }
 function has_filter( $h ) { return false; }
 function wp_strip_all_tags( $s ) { return $s; }
 function taxonomy_exists( $t ) { return false; }
-function get_the_terms( $id, $t ) { return []; }
+$term_map = [];
+function get_the_terms( $id, $t ) { global $term_map; return $term_map[ $id ][ $t ] ?? []; }
+function wp_list_pluck( $a, $f ) { return array_column( array_map( fn( $x ) => (array) $x, $a ), $f ); }
 function has_term( $a, $b, $c ) { return false; }
 function is_wp_error( $x ) { return false; }
 function wp_json_encode( $x ) { return json_encode( $x ); }
@@ -104,6 +106,8 @@ check( 'search_volume_by_day: 90 entries', count( $report->search_volume_by_day(
 $products[1] = new WC_Product( 1, 'Blue Lamp', 'LAMP1' );
 $products[2] = new WC_Product( 2, 'Blue Hat', 'HAT1' );
 $products[3] = new WC_Product( 3, 'Red Sock', 'SOCK1' );
+$term_map[1]['product_cat'] = [ (object) [ 'name' => 'Lighting', 'slug' => 'lighting' ] ];
+$term_map[2]['product_cat'] = [ (object) [ 'name' => 'Clothing', 'slug' => 'clothing' ] ];
 $im = new IndexManager();
 foreach ( [ 1, 2, 3 ] as $id ) {
 	$im->sync_product( $id );
@@ -118,6 +122,15 @@ check( 'typo tolerance finds lamp', in_array( 1, $ids( 'lampp' ), true ), true )
 
 $opts['tlt_search_settings'] = [ 'typo_tolerance' => 'off' ];
 check( 'typo off: no match', $ids( 'lampp' ), [] );
+
+// Per-search-box category scope (native Loupe filter and PHP fallback).
+$sm   = new \TLTSuite\TLTSearch\Search\SearchManager();
+$ids2 = fn( array $r ) => array_map( 'intval', array_column( $r['hits'], 'id' ) );
+check( 'scope: Lighting only', $ids2( $sm->search_native( 'blue', [ 'scope_categories' => [ 'Lighting' ] ], 'relevance', 1, 10 ) ), [ 1 ] );
+check( 'scope: two categories', count( $sm->search_native( 'blue', [ 'scope_categories' => [ 'Lighting', 'Clothing' ] ], 'relevance', 1, 10 )['hits'] ), 2 );
+check( 'scope ANDs with shopper filter', $sm->search_native( 'blue', [ 'scope_categories' => [ 'Lighting' ], 'categories' => [ 'Clothing' ] ], 'relevance', 1, 10 )['hits'], [] );
+$fb = new \TLTSuite\TLTSearch\Search\FacetBuilder();
+check( 'scope: PHP fallback', array_column( $fb->apply_filters( [ [ 'id' => 1, 'categories' => [ 'Lighting' ] ], [ 'id' => 2, 'categories' => [ 'Clothing' ] ] ], [ 'scope_categories' => [ 'Clothing' ] ] ), 'id' ), [ 2 ] );
 
 echo $fail ? "\n$fail FAILED\n" : "\nAll passed\n";
 exit( $fail ? 1 : 0 );

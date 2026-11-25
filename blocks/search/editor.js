@@ -2,7 +2,7 @@
 	const { registerBlockType } = wp.blocks;
 	const { createElement: el } = wp.element;
 	const { InspectorControls, useBlockProps } = wp.blockEditor;
-	const { PanelBody, TextControl, ToggleControl } = wp.components;
+	const { PanelBody, TextControl, ToggleControl, SelectControl } = wp.components;
 	const { __ } = wp.i18n;
 
 	registerBlockType( 'tlt-search/search', {
@@ -22,6 +22,27 @@
 							label: __( 'Placeholder text', 'tlt-search' ),
 							value: attributes.placeholder,
 							onChange: ( value ) => setAttributes( { placeholder: value } ),
+						} ),
+						el( TextControl, {
+							label: __( 'Only these categories (names, comma separated)', 'tlt-search' ),
+							value: attributes.category,
+							onChange: ( value ) => setAttributes( { category: value } ),
+						} ),
+						el( TextControl, {
+							label: __( 'Results per page (0 = site default)', 'tlt-search' ),
+							type: 'number',
+							value: attributes.perPage,
+							onChange: ( value ) => setAttributes( { perPage: parseInt( value, 10 ) || 0 } ),
+						} ),
+						el( SelectControl, {
+							label: __( 'Layout', 'tlt-search' ),
+							value: attributes.layout,
+							options: [
+								{ label: __( 'Site default', 'tlt-search' ), value: '' },
+								{ label: __( 'List', 'tlt-search' ), value: 'list' },
+								{ label: __( 'Grid', 'tlt-search' ), value: 'grid' },
+							],
+							onChange: ( value ) => setAttributes( { layout: value } ),
 						} ),
 						el( ToggleControl, {
 							label: __( 'Show filters', 'tlt-search' ),

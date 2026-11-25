@@ -6,7 +6,8 @@ document.addEventListener( 'alpine:init', () => {
 		results: [],
 		total: 0,
 		page: 1,
-		perPage: tltSearchConfig.perPage || 10,
+		perPage: config.perPage || tltSearchConfig.perPage || 10,
+		scope: config.scope || '',
 		cfg: tltSearchConfig,
 		totalPages: 0,
 		loading: false,
@@ -153,6 +154,9 @@ document.addEventListener( 'alpine:init', () => {
 				url.searchParams.set( 'q',        this.query );
 				url.searchParams.set( 'page',     this.page );
 				url.searchParams.set( 'per_page', this.perPage );
+				if ( this.scope ) {
+					url.searchParams.set( 'scope', this.scope );
+				}
 				if ( tltSearchConfig.lang ) {
 					url.searchParams.set( 'lang', tltSearchConfig.lang );
 				}
