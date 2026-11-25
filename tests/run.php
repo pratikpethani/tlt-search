@@ -78,6 +78,11 @@ RankingRules::set( 9, 'bury' );
 RankingRules::remove( 9 );
 check( 'set/remove/ignore invalid', RankingRules::all(), [ 7 => 'boost' ] );
 
+// ── Searches-per-day gap filling ────────────────────────────────────────────
+$days = \TLTSuite\TLTSearch\Analytics\AnalyticsReport::fill_days( [ [ 'search_date' => '2026-11-02', 'search_count' => '4' ] ], '2026-11-01', 3 );
+check( 'fill_days: zeros for empty days', array_column( $days, 'search_count' ), [ 0, 4, 0 ] );
+check( 'fill_days: consecutive dates', array_column( $days, 'search_date' ), [ '2026-11-01', '2026-11-02', '2026-11-03' ] );
+
 // ── Real Loupe index ───────────────────────────────────────────────────────
 $products[1] = new WC_Product( 1, 'Blue Lamp', 'LAMP1' );
 $products[2] = new WC_Product( 2, 'Blue Hat', 'HAT1' );

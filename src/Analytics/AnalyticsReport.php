@@ -62,7 +62,26 @@ class AnalyticsReport {
 			$limit
 		), ARRAY_A );
 
-		return $rows ?: [];
+		return self::fill_days( $rows ?: [], $first, $days );
+	}
+
+	/**
+	 * Return one entry per day for $days days from $first, with 0 for days without searches.
+	 *
+	 * @param array<array{search_date: string, search_count: int|string}> $rows
+	 * @return array<array{search_date: string, search_count: int}>
+	 */
+	public static function fill_days( array $rows, string $first, int $days ): array {
+
+		$counts = array_column( $rows, 'search_count', 'search_date' );
+		$out    = [];
+
+		for ( $i = 0; $i < $days; $i++ ) {
+			$date  = gmdate( 'Y-m-d', strtotime( "$first +$i days" ) );
+			$out[] = [ 'search_date' => $date, 'search_count' => (int) ( $counts[ $date ] ?? 0 ) ];
+		}
+
+		return $out;
 	}
 
 	/**
@@ -103,7 +122,9 @@ class AnalyticsReport {
 
 		global $wpdb;
 
-		$since = $this->since( $days );
+		// Exactly $days calendar days ending today (UTC, same clock as since()).
+		$first = gmdate( 'Y-m-d', strtotime( '-' . ( $days - 1 ) . ' days' ) );
+		$since = $first . ' 00:00:00';
 		$table = $wpdb->prefix . 'tlt_search_logs';
 
 		$rows = $wpdb->get_results( $wpdb->prepare(
