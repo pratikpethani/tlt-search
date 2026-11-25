@@ -72,7 +72,7 @@ document.addEventListener( 'alpine:init', () => {
 			this.filters.price_min   = '';
 			this.filters.price_max   = '';
 
-			if ( this.query.length < 3 ) {
+			if ( this.query.length < ( tltSearchConfig.minLength || 3 ) ) {
 				this.clearResults();
 				return;
 			}

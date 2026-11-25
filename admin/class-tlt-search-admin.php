@@ -222,6 +222,26 @@ class Tlt_Search_Admin {
 			? \TLTSuite\TLTSearch\Search\SearchFields::sanitize( $input['search_fields'] )
 			: ( $existing['search_fields'] ?? [] );
 
+		// Behavior settings. Each keeps its stored value if the form omitted it.
+		$pick = static fn( string $key, array $allowed, string $default ) =>
+			in_array( $input[ $key ] ?? null, $allowed, true ) ? $input[ $key ] : ( $existing[ $key ] ?? $default );
+
+		$clean['match_logic']       = $pick( 'match_logic', [ 'any', 'all' ], 'any' );
+		$clean['typo_tolerance']    = $pick( 'typo_tolerance', [ 'on', 'off' ], 'on' );
+		$clean['hide_out_of_stock'] = $pick( 'hide_out_of_stock', [ 'yes', 'no' ], 'no' );
+
+		$clean['min_query_length'] = isset( $input['min_query_length'] )
+			? max( 1, min( 10, (int) $input['min_query_length'] ) )
+			: ( $existing['min_query_length'] ?? 3 );
+
+		$list = static fn( string $key, callable $fn ) => isset( $input[ $key ] )
+			? implode( ', ', \TLTSuite\TLTSearch\Search\SearchOptions::parse_list( (string) $input[ $key ], $fn ) )
+			: ( $existing[ $key ] ?? '' );
+
+		$clean['exclude_product_ids'] = $list( 'exclude_product_ids', 'absint' );
+		$clean['exclude_categories']  = $list( 'exclude_categories', 'sanitize_title' );
+		$clean['custom_taxonomies']   = $list( 'custom_taxonomies', 'sanitize_key' );
+
 		$clean['custom_field_keys'] = isset( $input['custom_field_keys'] )
 			? implode( ', ', \TLTSuite\TLTSearch\Search\SearchFields::parse_keys( (string) $input['custom_field_keys'] ) )
 			: ( $existing['custom_field_keys'] ?? '' );

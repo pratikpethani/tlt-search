@@ -23,10 +23,13 @@ class SearchRequestValidator {
 			);
 		}
 
-		if ( mb_strlen( $query ) < 3 ) {
+		$min = \TLTSuite\TLTSearch\Search\SearchOptions::min_query_length();
+
+		if ( mb_strlen( $query ) < $min ) {
 			return new WP_Error(
 				'tlt_search_query_too_short',
-				__( 'Search query must be at least 3 characters.', 'tlt-search' ),
+				/* translators: %d: minimum number of characters */
+				sprintf( __( 'Search query must be at least %d characters.', 'tlt-search' ), $min ),
 				[ 'status' => 400 ]
 			);
 		}

@@ -3,6 +3,7 @@
 namespace TLTSuite\TLTSearch\WooCommerce;
 
 use TLTSuite\TLTSearch\Search\SearchFields;
+use TLTSuite\TLTSearch\Search\SearchOptions;
 use WC_Product;
 use WC_Product_Attribute;
 
@@ -19,6 +20,8 @@ class ProductDocumentMapper {
 			'lang'              => \TLTSuite\TLTSearch\Support\Multilingual::post_language( $product->get_id() ),
 			'gtin'              => $this->get_gtin( $product ),
 			'custom_fields'     => $this->get_custom_fields( $product ),
+			'variations'        => $this->get_variation_terms( $product ),
+			'taxonomy_terms'    => $this->get_custom_taxonomy_terms( $product->get_id() ),
 			'description'       => wp_strip_all_tags(
 				$product->get_description()
 			),
@@ -73,6 +76,57 @@ class ProductDocumentMapper {
 		}
 
 		return array_values( array_unique( $values ) );
+	}
+
+	/**
+	 * SKUs, GTINs and attribute values of a variable product's published variations,
+	 * so a search for a variation SKU or "XL" finds the parent product.
+	 */
+	protected function get_variation_terms( WC_Product $product ): array {
+
+		if ( ! $product->is_type( 'variable' ) ) {
+			return [];
+		}
+
+		$out = [];
+
+		foreach ( array_slice( $product->get_children(), 0, 200 ) as $variation_id ) {
+
+			$variation = wc_get_product( $variation_id );
+
+			if ( ! $variation || 'publish' !== $variation->get_status() ) {
+				continue;
+			}
+
+			$out[] = $variation->get_sku();
+			$out[] = $this->get_gtin( $variation );
+
+			foreach ( $variation->get_attributes() as $taxonomy => $value ) {
+
+				if ( '' === (string) $value ) {
+					continue;
+				}
+
+				$term  = taxonomy_exists( $taxonomy ) ? get_term_by( 'slug', $value, $taxonomy ) : false;
+				$out[] = $term ? $term->name : (string) $value;
+			}
+		}
+
+		return array_values( array_unique( array_filter( $out, static fn( $v ) => '' !== (string) $v ) ) );
+	}
+
+	/** Terms of the extra taxonomies chosen in settings. */
+	protected function get_custom_taxonomy_terms( int $product_id ): array {
+
+		$names = [];
+
+		foreach ( SearchOptions::custom_taxonomies() as $taxonomy ) {
+			if ( taxonomy_exists( $taxonomy ) ) {
+				$names = array_merge( $names, $this->get_term_names( $product_id, $taxonomy ) );
+			}
+		}
+
+		return array_values( array_unique( $names ) );
 	}
 
 	protected function get_term_names( int $product_id, string $taxonomy ): array {

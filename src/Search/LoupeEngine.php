@@ -32,6 +32,10 @@ class LoupeEngine implements SearchEngineInterface {
 			->withRankingRules( [ 'exactness', 'attribute', 'words', 'typo', 'proximity' ] )
 			->withLanguages( $this->get_languages( $language ) );
 
+		if ( ! SearchOptions::typo_tolerance() ) {
+			$config = $config->withTypoTolerance( \Loupe\Loupe\Config\TypoTolerance::disabled() );
+		}
+
 		if ( ! empty( $stopWords ) ) {
 			$config = $config->withStopWords( $stopWords );
 		}
@@ -77,14 +81,15 @@ class LoupeEngine implements SearchEngineInterface {
 			$params = $params->withFilter( (string) $options['filter'] );
 		}
 
-		return $this->loupe->search( $params )->getHits();
+		return $this->query( $params )->getHits();
 	}
 
 	/**
 	 * Run a fully-built Loupe query and return the raw result (hits, totals, facets).
 	 */
 	public function query( SearchParameters $params ): \Loupe\Loupe\SearchResult {
-		return $this->loupe->search( $params );
+		// Every query honors the admin's AND/OR choice.
+		return $this->loupe->search( $params->withMatchingStrategy( SearchOptions::match_strategy() ) );
 	}
 
 	/** Site language first, then any other supported language used by WPML/Polylang. */

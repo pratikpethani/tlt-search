@@ -14,7 +14,7 @@ class SearchFields {
 
 	/** Field keys in default priority order. No translation calls: safe to use before `init`. */
 	public static function keys(): array {
-		return [ 'title', 'sku', 'gtin', 'categories', 'brands', 'tags', 'attribute_values', 'custom_fields', 'short_description', 'description' ];
+		return [ 'title', 'sku', 'gtin', 'variations', 'categories', 'brands', 'tags', 'attribute_values', 'custom_fields', 'taxonomy_terms', 'short_description', 'description' ];
 	}
 
 	/** Field key => label, for the admin UI only (translates, so call it on `init` or later). */
@@ -23,11 +23,13 @@ class SearchFields {
 			'title'             => __( 'Product title', 'tlt-search' ),
 			'sku'               => __( 'SKU', 'tlt-search' ),
 			'gtin'              => __( 'GTIN / EAN / UPC / ISBN', 'tlt-search' ),
+			'variations'        => __( 'Variations (SKU, GTIN, attributes)', 'tlt-search' ),
 			'categories'        => __( 'Categories', 'tlt-search' ),
 			'brands'            => __( 'Brands', 'tlt-search' ),
 			'tags'              => __( 'Tags', 'tlt-search' ),
 			'attribute_values'  => __( 'Attributes', 'tlt-search' ),
 			'custom_fields'     => __( 'Custom fields (keys set below)', 'tlt-search' ),
+			'taxonomy_terms'    => __( 'Custom taxonomies (set below)', 'tlt-search' ),
 			'short_description' => __( 'Short description', 'tlt-search' ),
 			'description'       => __( 'Description', 'tlt-search' ),
 		];
@@ -45,8 +47,10 @@ class SearchFields {
 
 		$rows = [];
 		foreach ( $all as $pos => $key ) {
-			if ( ! empty( $stored[ $key ]['enabled'] ) ) {
-				$rows[] = [ $key, (int) ( $stored[ $key ]['rank'] ?? 99 ), $pos ];
+			// Fields added after the settings were saved default to on, in their default position.
+			$cfg = $stored[ $key ] ?? [ 'enabled' => 1, 'rank' => $pos + 1 ];
+			if ( ! empty( $cfg['enabled'] ) ) {
+				$rows[] = [ $key, (int) ( $cfg['rank'] ?? 99 ), $pos ];
 			}
 		}
 

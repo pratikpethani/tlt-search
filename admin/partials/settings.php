@@ -118,6 +118,38 @@ $options = (array) get_option( 'tlt_search_settings', [] );
 										<span class="text-gray"><?php esc_html_e( 'Comma-separated product meta keys (e.g. an ACF field name) to make searchable. Needs the "Custom fields" row enabled above.', 'tlt-search' ); ?></span>
 									</div>
 								</div>
+								<?php
+								$opt = \TLTSuite\TLTSearch\Search\SearchOptions::all();
+								$rows = [
+									[ 'match_logic', __( 'Word matching', 'tlt-search' ), 'select', [ 'any' => __( 'Any word (broader results)', 'tlt-search' ), 'all' => __( 'All words (stricter, AND)', 'tlt-search' ) ], 'any', __( 'Whether a product must contain every word searched for.', 'tlt-search' ) ],
+									[ 'typo_tolerance', __( 'Typo tolerance', 'tlt-search' ), 'select', [ 'on' => __( 'On', 'tlt-search' ), 'off' => __( 'Off (exact spelling only)', 'tlt-search' ) ], 'on', __( 'Turn off for exact-match behavior. Rebuild the index after changing.', 'tlt-search' ) ],
+									[ 'min_query_length', __( 'Minimum characters', 'tlt-search' ), 'number', null, '3', __( 'Search starts after this many characters (1 to 10).', 'tlt-search' ) ],
+									[ 'hide_out_of_stock', __( 'Out-of-stock products', 'tlt-search' ), 'select', [ 'no' => __( 'Show in results', 'tlt-search' ), 'yes' => __( 'Hide from results', 'tlt-search' ) ], 'no', __( 'Rebuild the index after changing.', 'tlt-search' ) ],
+									[ 'exclude_product_ids', __( 'Exclude products', 'tlt-search' ), 'text', null, '', __( 'Comma-separated product IDs to keep out of search. Rebuild the index after changing.', 'tlt-search' ) ],
+									[ 'exclude_categories', __( 'Exclude categories', 'tlt-search' ), 'text', null, '', __( 'Comma-separated category slugs to keep out of search. Rebuild the index after changing.', 'tlt-search' ) ],
+									[ 'custom_taxonomies', __( 'Extra taxonomies', 'tlt-search' ), 'text', null, '', __( 'Comma-separated taxonomy slugs whose terms are searchable (needs the "Custom taxonomies" row enabled above). Rebuild the index after changing.', 'tlt-search' ) ],
+								];
+								foreach ( $rows as [ $key, $label, $type, $choices, $default, $help ] ) :
+									$value = (string) ( $opt[ $key ] ?? $default );
+									?>
+									<div class="form-group">
+										<div class="col-3 col-sm-12">
+											<label class="form-label" for="tlt-opt-<?php echo esc_attr( $key ); ?>"><?php echo esc_html( $label ); ?></label>
+										</div>
+										<div class="col-9 col-sm-12">
+											<?php if ( 'select' === $type ) : ?>
+												<select id="tlt-opt-<?php echo esc_attr( $key ); ?>" name="tlt_search_settings[<?php echo esc_attr( $key ); ?>]" class="form-select mb-1">
+													<?php foreach ( $choices as $v => $text ) : ?>
+														<option value="<?php echo esc_attr( $v ); ?>" <?php selected( $value, $v ); ?>><?php echo esc_html( $text ); ?></option>
+													<?php endforeach; ?>
+												</select>
+											<?php else : ?>
+												<input type="<?php echo esc_attr( $type ); ?>" id="tlt-opt-<?php echo esc_attr( $key ); ?>" name="tlt_search_settings[<?php echo esc_attr( $key ); ?>]" class="form-input mb-1" value="<?php echo esc_attr( $value ); ?>" <?php echo 'number' === $type ? 'min="1" max="10"' : ''; ?>/>
+											<?php endif; ?>
+											<span class="text-gray"><?php echo esc_html( $help ); ?></span>
+										</div>
+									</div>
+								<?php endforeach; ?>
 								<div class="form-group">
 									<input type="submit" name="submit" id="submit" class="btn btn-primary" value="Save Changes">
 								</div>

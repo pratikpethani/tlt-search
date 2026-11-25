@@ -3,6 +3,7 @@
 namespace TLTSuite\TLTSearch\Indexing;
 
 use TLTSuite\TLTSearch\Search\LoupeEngine;
+use TLTSuite\TLTSearch\Search\SearchOptions;
 use TLTSuite\TLTSearch\WooCommerce\ProductDocumentMapper;
 
 class IndexManager {
@@ -23,8 +24,23 @@ class IndexManager {
 	 */
 	public function is_indexable( \WC_Product $product ): bool {
 
-		return 'publish' === $product->get_status()
-			&& in_array( $product->get_catalog_visibility(), [ 'visible', 'search' ], true );
+		if ( 'publish' !== $product->get_status()
+			|| ! in_array( $product->get_catalog_visibility(), [ 'visible', 'search' ], true ) ) {
+			return false;
+		}
+
+		// Exclusions chosen on the Settings page.
+		if ( in_array( $product->get_id(), SearchOptions::excluded_product_ids(), true ) ) {
+			return false;
+		}
+
+		if ( SearchOptions::hide_out_of_stock() && 'outofstock' === $product->get_stock_status() ) {
+			return false;
+		}
+
+		$categories = SearchOptions::excluded_category_slugs();
+
+		return ! ( $categories && has_term( $categories, 'product_cat', $product->get_id() ) );
 	}
 
 	/**
