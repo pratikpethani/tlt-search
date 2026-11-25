@@ -1175,6 +1175,7 @@
 #tlt-suite .tlt-source .tlt-badge input[type=number] { width: 58px; min-height: 26px; }
 #tlt-suite .tlt-source__gear { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; padding: 0; border: 1px solid #3858e9; border-radius: 4px; background: none; color: #3858e9; cursor: pointer; }
 #tlt-suite .tlt-source__gear--none { visibility: hidden; }
+#tlt-suite .tlt-source .tlt-source__note { margin: 0; padding: 0 0 8px 38px; }
 #tlt-suite .tlt-source__panel { padding: 12px 0 18px 38px; border-top: 1px solid #dcdcde; }
 #tlt-suite .tlt-source__line { display: flex; align-items: center; gap: 12px; font-weight: 600; }
 #tlt-suite .tlt-source__panel .tlt-source__line input { width: 90px; }

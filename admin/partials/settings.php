@@ -202,13 +202,16 @@ require __DIR__ . '/header.php';
 												<span class="tlt-source__gear tlt-source__gear--none"></span>
 											<?php endif; ?>
 										</div>
+										<?php if ( 'attribute_values' === $key ) : ?>
+											<p class="tlt-help tlt-source__note"><?php esc_html_e( 'This one priority applies to all product attributes. 1 is the most important, 99 the least.', 'tlt-search' ); ?></p>
+										<?php endif; ?>
 										<?php if ( $has_gear ) : ?>
 											<div class="tlt-source__panel" id="<?php echo esc_attr( $panel ); ?>">
 												<label class="tlt-source__line">
-													<span><?php esc_html_e( 'Priority', 'tlt-search' ); ?></span>
+													<span><?php echo esc_html( $picker ? __( 'Priority for all items in the list', 'tlt-search' ) : __( 'Priority', 'tlt-search' ) ); ?></span>
 													<?php echo $rank_box; // Escaped above. ?>
 												</label>
-												<p class="tlt-help"><?php esc_html_e( '1 is the most important, 99 the least.', 'tlt-search' ); ?></p>
+												<p class="tlt-help"><?php echo esc_html( $picker ? __( 'One number applies to every item you pick below. 1 is the most important, 99 the least.', 'tlt-search' ) : __( '1 is the most important, 99 the least.', 'tlt-search' ) ); ?></p>
 												<?php if ( $picker ) : ?>
 													<div class="tlt-picker">
 														<span class="tlt-picker__title"><?php echo esc_html( $picker['label'] ); ?></span>
