@@ -62,7 +62,7 @@ class AnalyticsReport {
 			$limit
 		), ARRAY_A );
 
-		return self::fill_days( $rows ?: [], $first, $days );
+		return $rows ?: [];
 	}
 
 	/**
@@ -138,7 +138,7 @@ class AnalyticsReport {
 			$since
 		), ARRAY_A );
 
-		return $rows ?: [];
+		return self::fill_days( $rows ?: [], $first, $days );
 	}
 
 	/** Total result clicks and click-through rate (clicks per search that had results). */

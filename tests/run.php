@@ -83,6 +83,23 @@ $days = \TLTSuite\TLTSearch\Analytics\AnalyticsReport::fill_days( [ [ 'search_da
 check( 'fill_days: zeros for empty days', array_column( $days, 'search_count' ), [ 0, 4, 0 ] );
 check( 'fill_days: consecutive dates', array_column( $days, 'search_date' ), [ '2026-11-01', '2026-11-02', '2026-11-03' ] );
 
+// ── Report methods with a fake $wpdb (regression: popular_searches must not gap-fill) ──
+define( 'ARRAY_A', 'ARRAY_A' );
+class FakeWpdb {
+	public $prefix = 'wp_';
+	public array $rows = [];
+	function prepare( $q, ...$a ) { return $q; }
+	function get_results( $q, $o = null ) { return $this->rows; }
+}
+$wpdb       = new FakeWpdb();
+$wpdb->rows = [ [ 'query' => 'lamp', 'search_count' => '3' ] ];
+$report     = new \TLTSuite\TLTSearch\Analytics\AnalyticsReport();
+check( 'popular_searches returns rows as-is', $report->popular_searches( 30, 20 ), $wpdb->rows );
+$wpdb->rows = [];
+check( 'popular_searches empty', $report->popular_searches( 30, 20 ), [] );
+check( 'search_volume_by_day: 7 days of zeros when empty', array_column( $report->search_volume_by_day( 7 ), 'search_count' ), [ 0, 0, 0, 0, 0, 0, 0 ] );
+check( 'search_volume_by_day: 90 entries', count( $report->search_volume_by_day( 90 ) ), 90 );
+
 // ── Real Loupe index ───────────────────────────────────────────────────────
 $products[1] = new WC_Product( 1, 'Blue Lamp', 'LAMP1' );
 $products[2] = new WC_Product( 2, 'Blue Hat', 'HAT1' );
