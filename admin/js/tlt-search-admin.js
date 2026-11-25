@@ -186,14 +186,16 @@
 									'data-product-id="' + item.id + '" ' +
 									'data-query="' + $('<span>').text(q).html() + '"' +
 									( item.is_pinned ? ' disabled title="Already pinned"' : '' ) +
-								'>' + ( item.is_pinned ? '<i class="icon icon-check"></i> Pinned' : '<i class="icon icon-plus"></i> Pin' ) + '</button>' +
+								'>' + ( item.is_pinned ? '<i class="icon icon-check"></i> Pinned' : '<i class="icon icon-plus"></i> Pin' ) + '</button> ' +
+								'<button class="btn btn-sm tlt-rule-product" data-mode="boost" data-product-id="' + item.id + '">Boost</button> ' +
+								'<button class="btn btn-sm tlt-rule-product" data-mode="bury" data-product-id="' + item.id + '">Bury</button>' +
 							'</td>' +
 						'</tr>';
 					});
 
 					$pinResults.html(
 						'<table class="table table-hover">' +
-						'<thead><tr><th>Product</th><th style="width:90px;text-align:right;">Action</th></tr></thead>' +
+						'<thead><tr><th>Product</th><th style="width:220px;text-align:right;">Action</th></tr></thead>' +
 						'<tbody>' + rows.join('') + '</tbody></table>'
 					);
 				})
@@ -234,6 +236,31 @@
 			.fail(function () {
 				$btn.prop('disabled', false).text('Pin');
 			});
+		});
+
+		$(document).on('click', '.tlt-rule-product', function () {
+			var $btn = $(this);
+			$btn.prop('disabled', true);
+			$.post(ajaxUrl, {
+				action     : 'tlt_search_set_rule',
+				nonce      : nonce,
+				product_id : $btn.data('product-id'),
+				mode       : $btn.data('mode'),
+			})
+			.done(function (res) {
+				if ( res.success ) { window.location.reload(); } else { $btn.prop('disabled', false); alert(res.data || 'Error saving rule.'); }
+			})
+			.fail(function () { $btn.prop('disabled', false); });
+		});
+
+		$(document).on('click', '.tlt-remove-rule', function () {
+			var $btn = $(this);
+			$btn.prop('disabled', true);
+			$.post(ajaxUrl, { action: 'tlt_search_remove_rule', nonce: nonce, product_id: $btn.data('product-id') })
+			.done(function (res) {
+				if ( res.success ) { $btn.closest('tr').fadeOut(300, function () { $(this).remove(); }); } else { $btn.prop('disabled', false); }
+			})
+			.fail(function () { $btn.prop('disabled', false); });
 		});
 
 		$(document).on('click', '.tlt-remove-pin', function () {

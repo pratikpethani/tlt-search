@@ -15,7 +15,7 @@
  * @wordpress-plugin
  * Plugin Name:       TLTSearch
  * Plugin URI:        https://trileotech.com/
- * Description:       This is a description of the plugin.
+ * Description:       Fast, typo-tolerant live product search for WooCommerce.
  * Version:           1.0.0
  * Author:            TLT Suite
  * Author URI:        https://trileotech.com/

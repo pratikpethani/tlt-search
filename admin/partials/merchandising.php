@@ -5,6 +5,7 @@ use TLTSuite\TLTSearch\Merchandising\PinManager;
 
 $pin_manager = new PinManager();
 $all_pins    = $pin_manager->get_all_pins_grouped();
+$rules       = \TLTSuite\TLTSearch\Merchandising\RankingRules::all();
 ?>
 
 <div id="tlt-suite">
@@ -101,6 +102,38 @@ $all_pins    = $pin_manager->get_all_pins_grouped();
 				</div>
 			</div>
 		</div>
+	<div class="container mt-2">
+		<div class="columns">
+			<div class="column col-12">
+				<div class="card p-1">
+					<div class="card-header">
+						<div class="card-title h3 text-bold mb-2"><?php esc_html_e( 'Boost / Bury Rules', 'tlt-search' ); ?></div>
+						<p class="description"><?php esc_html_e( 'Boosted products rank above other results for every search, buried products rank below them. Pins still come first. Applies to the default relevance order only. Use the Boost and Bury buttons in the product search above.', 'tlt-search' ); ?></p>
+					</div>
+					<div class="card-body">
+						<?php if ( $rules ) : ?>
+						<table class="table">
+							<tbody>
+							<?php foreach ( $rules as $rule_pid => $rule_mode ) :
+								$rule_product = wc_get_product( (int) $rule_pid );
+							?>
+								<tr>
+									<td><?php echo esc_html( 'boost' === $rule_mode ? __( 'Boost', 'tlt-search' ) : __( 'Bury', 'tlt-search' ) ); ?></td>
+									<td><?php echo esc_html( $rule_product ? $rule_product->get_name() : __( 'Product not found', 'tlt-search' ) ); ?> <span style="color:#888;font-size:0.85em;">#<?php echo esc_html( $rule_pid ); ?></span></td>
+									<td style="width:80px;text-align:center;"><button class="btn btn-error btn-sm tlt-remove-rule" data-product-id="<?php echo esc_attr( $rule_pid ); ?>"><i class="icon icon-delete"></i></button></td>
+								</tr>
+							<?php endforeach; ?>
+							</tbody>
+						</table>
+						<?php else : ?>
+							<p><?php esc_html_e( 'No boost or bury rules yet.', 'tlt-search' ); ?></p>
+						<?php endif; ?>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
 	</div>
 
 	

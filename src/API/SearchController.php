@@ -9,6 +9,7 @@ use TLTSuite\TLTSearch\Search\TermResults;
 use TLTSuite\TLTSearch\Analytics\AnalyticsReport;
 use TLTSuite\TLTSearch\Analytics\SearchLogger;
 use TLTSuite\TLTSearch\Merchandising\PinManager;
+use TLTSuite\TLTSearch\Merchandising\RankingRules;
 use TLTSuite\TLTSearch\API\SearchRequestValidator;
 use TLTSuite\TLTSearch\API\ResultTransformer;
 use TLTSuite\TLTSearch\API\ResponseFormatter;
@@ -97,7 +98,10 @@ class SearchController {
 
 				// Fast path: Loupe filters, sorts, pages and counts facets itself.
 				// Pinned results and synonym-expanded queries need merging in PHP (legacy path).
-				$native = empty( $pinned_ids )
+				// Boost/bury rules also need PHP re-ranking, but only for relevance sort.
+				$rules = 'relevance' === $sort ? RankingRules::all() : [];
+
+				$native = empty( $pinned_ids ) && empty( $rules )
 					? $service->search_native( $query, $filters, $sort, $page, $per_page )
 					: null;
 
@@ -140,6 +144,8 @@ class SearchController {
 
 						$all_hits = array_merge( $pinned_docs, $all_hits );
 					}
+
+					$all_hits = RankingRules::apply( $all_hits, $rules );
 
 
 					$total         = count( $all_hits );

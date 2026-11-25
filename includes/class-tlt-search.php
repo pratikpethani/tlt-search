@@ -174,6 +174,8 @@ class Tlt_Search {
 		$this->loader->add_action( 'wp_ajax_tlt_search_delete_synonym_group', $plugin_admin, 'ajax_delete_synonym_group' );
 		$this->loader->add_action( 'wp_ajax_tlt_search_add_pin',           $plugin_admin, 'ajax_add_pin' );
 		$this->loader->add_action( 'wp_ajax_tlt_search_remove_pin',        $plugin_admin, 'ajax_remove_pin' );
+		$this->loader->add_action( 'wp_ajax_tlt_search_set_rule',          $plugin_admin, 'ajax_set_rule' );
+		$this->loader->add_action( 'wp_ajax_tlt_search_remove_rule',       $plugin_admin, 'ajax_remove_rule' );
 	}
 
 	/**

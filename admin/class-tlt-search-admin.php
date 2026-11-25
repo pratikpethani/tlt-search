@@ -338,6 +338,39 @@ class Tlt_Search_Admin {
 		wp_send_json_success();
 	}
 
+	public function ajax_set_rule(): void {
+
+		check_ajax_referer( 'tlt_search_index', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( __( 'Permission denied.', 'tlt-search' ), 403 );
+		}
+
+		$product_id = absint( $_POST['product_id'] ?? 0 );
+		$mode       = sanitize_key( wp_unslash( $_POST['mode'] ?? '' ) );
+
+		if ( ! $product_id || ! in_array( $mode, [ 'boost', 'bury' ], true ) ) {
+			wp_send_json_error( __( 'Invalid product or mode.', 'tlt-search' ), 400 );
+		}
+
+		\TLTSuite\TLTSearch\Merchandising\RankingRules::set( $product_id, $mode );
+
+		wp_send_json_success();
+	}
+
+	public function ajax_remove_rule(): void {
+
+		check_ajax_referer( 'tlt_search_index', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( __( 'Permission denied.', 'tlt-search' ), 403 );
+		}
+
+		\TLTSuite\TLTSearch\Merchandising\RankingRules::remove( absint( $_POST['product_id'] ?? 0 ) );
+
+		wp_send_json_success();
+	}
+
 	public function ajax_remove_pin(): void {
 
 		check_ajax_referer( 'tlt_search_index', 'nonce' );
