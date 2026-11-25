@@ -238,6 +238,26 @@
 			});
 		});
 
+		// Zero-result list: one-click synonym.
+		$(document).on('click', '.tlt-zero-add-synonym', function () {
+			var $btn  = $(this);
+			var other = $btn.siblings('.tlt-zero-synonym').val().trim();
+			if ( ! other ) return;
+			$btn.prop('disabled', true);
+			$.post(ajaxUrl, { action: 'tlt_search_add_synonym_group', nonce: nonce, terms: $btn.data('query') + ', ' + other })
+			.done(function (res) {
+				if ( res.success ) { $btn.text('Added').siblings('input').prop('disabled', true); }
+				else { $btn.prop('disabled', false); alert(res.data || 'Error.'); }
+			})
+			.fail(function () { $btn.prop('disabled', false); });
+		});
+
+		// Prefill the pin search when arriving from the zero-result list.
+		if ( $pinQuery.length ) {
+			var prefill = new URLSearchParams(window.location.search).get('q');
+			if ( prefill ) { $pinQuery.val(prefill); $pinSearchBtn.trigger('click'); }
+		}
+
 		$(document).on('click', '.tlt-rule-product', function () {
 			var $btn = $(this);
 			$btn.prop('disabled', true);

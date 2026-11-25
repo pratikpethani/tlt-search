@@ -139,8 +139,11 @@ function tlt_days_link( string $base_url, int $days, int $current_days ): string
 									<tr>
 										<td>
 											<code><?php echo esc_html( $row['query'] ); ?></code>
-											<a class="btn btn-link" href="<?php echo esc_url( admin_url( 'admin.php?page=tlt-search-synonyms' ) ); ?>" title="<?php esc_attr_e( 'Add synonym', 'tlt-search' ); ?>"
-											>+&nbsp;<?php esc_html_e( 'synonym', 'tlt-search' ); ?></a>
+											<span class="tlt-zero-actions" style="display:block;margin-top:4px;">
+												<input type="text" class="form-input input-sm tlt-zero-synonym" style="width:150px;display:inline-block;" placeholder="<?php esc_attr_e( 'same as… (e.g. sofa)', 'tlt-search' ); ?>">
+												<button type="button" class="btn btn-sm tlt-zero-add-synonym" data-query="<?php echo esc_attr( $row['query'] ); ?>"><?php esc_html_e( 'Add synonym', 'tlt-search' ); ?></button>
+												<a class="btn btn-link btn-sm" href="<?php echo esc_url( add_query_arg( [ 'page' => 'tlt-search-merchandising', 'q' => $row['query'] ], admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Pin a product', 'tlt-search' ); ?></a>
+											</span>
 										</td>
 										<td><?php echo esc_html( number_format_i18n( (int) $row['search_count'] ) ); ?></td>
 										<td ><?php echo esc_html( wp_date( get_option( 'date_format' ), strtotime( $row['last_searched'] ) ) ); ?></td>
