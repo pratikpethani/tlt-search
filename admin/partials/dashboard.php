@@ -58,7 +58,7 @@ require __DIR__ . '/header.php';
 			<div class="tlt-progress"><div id="tlt-progress-bar"></div></div>
 			<p id="tlt-progress-text"></p>
 		</div>
-		<button type="button" id="tlt-rebuild-btn" class="button button-primary"><?php esc_html_e( 'Update search data', 'tlt-search' ); ?></button>
+		<button type="button" id="tlt-rebuild-btn" class="button button-primary button-large"><span class="dashicons dashicons-update" aria-hidden="true"></span><span class="tlt-btn__label"><?php esc_html_e( 'Update search data', 'tlt-search' ); ?></span></button>
 		<p class="tlt-help"><?php esc_html_e( 'Reads all products again. Keep this page open until it finishes.', 'tlt-search' ); ?></p>
 	</div>
 </div>
@@ -73,7 +73,7 @@ require __DIR__ . '/header.php';
 					<option value="<?php echo esc_attr( $cat->term_id ); ?>"><?php echo esc_html( $cat->name ); ?> (<?php echo esc_html( number_format_i18n( $cat->count ) ); ?>)</option>
 				<?php endforeach; ?>
 			</select>
-			<button type="button" id="tlt-partial-btn" class="button" disabled><?php esc_html_e( 'Update category', 'tlt-search' ); ?></button>
+			<button type="button" id="tlt-partial-btn" class="button" disabled><span class="dashicons dashicons-update" aria-hidden="true"></span><span class="tlt-btn__label"><?php esc_html_e( 'Update category', 'tlt-search' ); ?></span></button>
 			<span id="tlt-partial-status"></span>
 		</div>
 		<p class="tlt-help"><?php esc_html_e( 'Quicker option after editing many products in one category.', 'tlt-search' ); ?></p>
@@ -102,7 +102,7 @@ require __DIR__ . '/header.php';
 					<tr>
 						<td><?php echo esc_html( $result['title'] ?? '' ); ?></td>
 						<td><?php echo esc_html( $result['sku'] ?? '' ); ?></td>
-						<td><a href="<?php echo esc_url( get_edit_post_link( $result['id'] ?? 0 ) ); ?>"><?php esc_html_e( 'Edit', 'tlt-search' ); ?></a></td>
+						<td class="tlt-actions"><a class="button button-small tlt-icon-btn" href="<?php echo esc_url( get_edit_post_link( $result['id'] ?? 0 ) ); ?>" aria-label="<?php echo esc_attr( __( 'Edit', 'tlt-search' ) . ' ' . ( $result['title'] ?? '' ) ); ?>" title="<?php esc_attr_e( 'Edit product', 'tlt-search' ); ?>"><span class="dashicons dashicons-edit" aria-hidden="true"></span></a></td>
 					</tr>
 				<?php endforeach; ?>
 			</tbody>

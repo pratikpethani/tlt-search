@@ -49,7 +49,7 @@ require __DIR__ . '/header.php';
 								<?php endif; ?>
 							</td>
 							<td class="tlt-actions">
-								<button type="button" class="button tlt-remove-pin" data-pin-id="<?php echo esc_attr( $pin['id'] ); ?>"><?php esc_html_e( 'Remove', 'tlt-search' ); ?></button>
+								<button type="button" class="button button-small tlt-icon-btn tlt-remove-pin" data-pin-id="<?php echo esc_attr( $pin['id'] ); ?>" aria-label="<?php echo esc_attr( __( 'Remove pin', 'tlt-search' ) . ': ' . ( $product ? $product->get_name() : '#' . $pin['product_id'] ) ); ?>" title="<?php esc_attr_e( 'Remove pin', 'tlt-search' ); ?>"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button>
 							</td>
 						</tr>
 					<?php endforeach; ?>
@@ -72,7 +72,7 @@ require __DIR__ . '/header.php';
 					<tr>
 						<td class="tlt-pos"><?php echo esc_html( 'boost' === $rule_mode ? __( 'Boost', 'tlt-search' ) : __( 'Bury', 'tlt-search' ) ); ?></td>
 						<td><?php echo esc_html( $rule_product ? $rule_product->get_name() : __( 'Product not found', 'tlt-search' ) ); ?> <span class="tlt-muted">#<?php echo esc_html( $rule_pid ); ?></span></td>
-						<td class="tlt-actions"><button type="button" class="button tlt-remove-rule" data-product-id="<?php echo esc_attr( $rule_pid ); ?>"><?php esc_html_e( 'Remove', 'tlt-search' ); ?></button></td>
+						<td class="tlt-actions"><button type="button" class="button button-small tlt-icon-btn tlt-remove-rule" data-product-id="<?php echo esc_attr( $rule_pid ); ?>" aria-label="<?php echo esc_attr( __( 'Remove rule', 'tlt-search' ) . ': ' . ( $rule_product ? $rule_product->get_name() : '#' . $rule_pid ) ); ?>" title="<?php esc_attr_e( 'Remove rule', 'tlt-search' ); ?>"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button></td>
 					</tr>
 				<?php endforeach; ?>
 			</tbody>

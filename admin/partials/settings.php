@@ -120,7 +120,7 @@ $picked_item = static function ( string $key ) {
 	?>
 	<li data-key="<?php echo esc_attr( $key ); ?>">
 		<span class="tlt-picker__name"><?php echo esc_html( $key ); ?></span>
-		<button type="button" class="tlt-picker__remove" aria-label="<?php echo esc_attr( __( 'Remove', 'tlt-search' ) . ' ' . $key ); ?>">&times;</button>
+		<button type="button" class="button button-small tlt-icon-btn tlt-picker__remove" aria-label="<?php echo esc_attr( __( 'Remove', 'tlt-search' ) . ' ' . $key ); ?>" title="<?php esc_attr_e( 'Remove', 'tlt-search' ); ?>"><span class="dashicons dashicons-no-alt" aria-hidden="true"></span></button>
 	</li>
 	<?php
 };
@@ -193,8 +193,8 @@ require __DIR__ . '/header.php';
 											<?php endif; ?>
 											<?php if ( $has_gear ) : ?>
 												<span class="tlt-badge"><?php esc_html_e( 'priority:', 'tlt-search' ); ?> <span data-priority><?php echo (int) $rank; ?></span></span>
-												<button type="button" class="tlt-source__gear" aria-expanded="true" aria-controls="<?php echo esc_attr( $panel ); ?>" aria-label="<?php echo esc_attr( __( 'Options:', 'tlt-search' ) . ' ' . $label ); ?>">
-													<span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+												<button type="button" class="button tlt-icon-btn tlt-source__gear" title="<?php esc_attr_e( 'Close settings', 'tlt-search' ); ?>" data-open-title="<?php esc_attr_e( 'Close settings', 'tlt-search' ); ?>" data-closed-title="<?php esc_attr_e( 'Open settings', 'tlt-search' ); ?>" data-name="<?php echo esc_attr( $label ); ?>" aria-expanded="true" aria-controls="<?php echo esc_attr( $panel ); ?>" aria-label="<?php echo esc_attr( __( 'Close settings', 'tlt-search' ) . ': ' . $label ); ?>">
+													<span class="dashicons dashicons-admin-settings" aria-hidden="true"></span>
 												</button>
 											<?php else : ?>
 												<?php // No options box on this row, so its priority is edited in place. ?>
@@ -222,7 +222,7 @@ require __DIR__ . '/header.php';
 																	<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $text ); ?></option>
 																<?php endforeach; ?>
 															</select>
-															<button type="button" class="button tlt-picker__add"><?php esc_html_e( 'Add', 'tlt-search' ); ?></button>
+															<button type="button" class="button tlt-picker__add"><span class="dashicons dashicons-plus" aria-hidden="true"></span><?php esc_html_e( 'Add', 'tlt-search' ); ?></button>
 														</div>
 														<?php // The stored comma list. Left exactly as saved until an item is added or removed. ?>
 														<input type="text" class="tlt-picker__value" name="tlt_search_settings[<?php echo esc_attr( $picker['setting'] ); ?>]" value="<?php echo esc_attr( (string) ( $options[ $picker['setting'] ] ?? '' ) ); ?>"/>
@@ -257,7 +257,7 @@ require __DIR__ . '/header.php';
 				</div>
 
 				<p class="tlt-submit">
-					<input type="submit" name="submit" id="submit" class="button button-primary" value="<?php esc_attr_e( 'Save Changes', 'tlt-search' ); ?>">
+					<input type="submit" name="submit" id="submit" class="button button-primary button-large" value="<?php esc_attr_e( 'Save Changes', 'tlt-search' ); ?>">
 				</p>
 			</form>
 		</div>

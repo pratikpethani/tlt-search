@@ -88,8 +88,8 @@ require __DIR__ . '/header.php';
 						<code><?php echo esc_html( $row['query'] ); ?></code>
 						<span class="tlt-zero-actions tlt-inline">
 							<input type="text" class="tlt-zero-synonym" aria-label="<?php esc_attr_e( 'Word that means the same', 'tlt-search' ); ?>" placeholder="<?php esc_attr_e( 'same as… (e.g. sofa)', 'tlt-search' ); ?>">
-							<button type="button" class="button tlt-zero-add-synonym" data-query="<?php echo esc_attr( $row['query'] ); ?>"><?php esc_html_e( 'Add synonym', 'tlt-search' ); ?></button>
-							<a href="<?php echo esc_url( add_query_arg( [ 'page' => 'tlt-search-merchandising', 'q' => $row['query'] ], admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Pin a product', 'tlt-search' ); ?></a>
+							<button type="button" class="button button-small tlt-zero-add-synonym" data-query="<?php echo esc_attr( $row['query'] ); ?>"><?php esc_html_e( 'Add synonym', 'tlt-search' ); ?></button>
+							<a class="button button-small" href="<?php echo esc_url( add_query_arg( [ 'page' => 'tlt-search-merchandising', 'q' => $row['query'] ], admin_url( 'admin.php' ) ) ); ?>"><?php esc_html_e( 'Pin a product', 'tlt-search' ); ?></a>
 						</span>
 					</td>
 					<td><?php echo esc_html( number_format_i18n( (int) $row['search_count'] ) ); ?></td>

@@ -18,7 +18,7 @@
 		if ( $btn.length ) {
 
 			$btn.on('click', function () {
-				$btn.prop('disabled', true).text('Starting…');
+				$btn.prop('disabled', true).find('.tlt-btn__label').text('Starting…');
 				$progress.show();
 				$bar.css('width', '0%');
 				$text.text('Getting ready…');
@@ -76,13 +76,13 @@
 		function showDone(indexed) {
 			$bar.css('width', '100%');
 			$text.html('<strong style="color:#0a8a0a;"><i class="icon icon-check"></i> Done — ' + indexed + ' products updated.</strong>');
-			$btn.prop('disabled', false).text('Update search data');
+			$btn.prop('disabled', false).find('.tlt-btn__label').text('Update search data');
 			setTimeout(function () { location.reload(); }, 1500);
 		}
 
 		function showError(msg) {
 			$text.html('<strong style="color:#d63638;">Error: ' + msg + '</strong>');
-			$btn.prop('disabled', false).text('Update search data');
+			$btn.prop('disabled', false).find('.tlt-btn__label').text('Update search data');
 		}
 
 		// ── Synonyms Manager ─────────────────────────────────────────────────
@@ -157,7 +157,16 @@
 
 		var openSource = function ($source, open) {
 			$source.find('.tlt-source__panel').prop('hidden', ! open);
-			$source.find('button.tlt-source__gear').attr('aria-expanded', open ? 'true' : 'false');
+			$source.find('button.tlt-source__gear')
+				.attr('aria-expanded', open ? 'true' : 'false')
+				.each(function () {
+					this.title = $(this).attr(open ? 'data-open-title' : 'data-closed-title');
+					$(this).attr('aria-label', this.title + ': ' + $(this).attr('data-name'));
+				})
+				// The settings icon turns into a cross while the box is open.
+				.find('.dashicons')
+				.toggleClass('dashicons-no-alt', open)
+				.toggleClass('dashicons-admin-settings', ! open);
 		};
 
 		// Closed from script, so everything stays reachable if scripts fail.
@@ -268,13 +277,13 @@
 						return '<tr>' +
 							'<td>' + img + label + '</td>' +
 							'<td style="text-align:right;">' +
-								'<button class="btn btn-sm btn-primary tlt-pin-product" ' +
+								'<button class="button button-small button-primary tlt-pin-product" ' +
 									'data-product-id="' + item.id + '" ' +
 									'data-query="' + $('<span>').text(q).html() + '"' +
 									( item.is_pinned ? ' disabled title="Already pinned"' : '' ) +
-								'>' + ( item.is_pinned ? '<i class="icon icon-check"></i> Pinned' : '<i class="icon icon-plus"></i> Pin' ) + '</button> ' +
-								'<button class="btn btn-sm tlt-rule-product" data-mode="boost" data-product-id="' + item.id + '">Boost</button> ' +
-								'<button class="btn btn-sm tlt-rule-product" data-mode="bury" data-product-id="' + item.id + '">Bury</button>' +
+								'>' + ( item.is_pinned ? 'Pinned' : 'Pin' ) + '</button> ' +
+								'<button class="button button-small tlt-rule-product" data-mode="boost" data-product-id="' + item.id + '">Boost</button> ' +
+								'<button class="button button-small tlt-rule-product" data-mode="bury" data-product-id="' + item.id + '">Bury</button>' +
 							'</td>' +
 						'</tr>';
 					});
@@ -331,7 +340,7 @@
 				type: 'bar',
 				data: {
 					labels   : JSON.parse(chartEl.dataset.labels || '[]'),
-					datasets : [{ label: chartEl.dataset.label, data: JSON.parse(chartEl.dataset.values || '[]'), backgroundColor: '#5755d9' }],
+					datasets : [{ label: chartEl.dataset.label, data: JSON.parse(chartEl.dataset.values || '[]'), backgroundColor: getComputedStyle(document.body).getPropertyValue('--wp-admin-theme-color').trim() || '#2271b1' }],
 				},
 				options: { maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } },
 			});
@@ -429,7 +438,7 @@
 				var termId = $catSelect.val();
 				if ( ! termId ) return;
 
-				$partialBtn.prop('disabled', true).text('Updating…');
+				$partialBtn.prop('disabled', true).find('.tlt-btn__label').text('Updating…');
 				$partialStatus.text('');
 
 				$.post(ajaxUrl, {
@@ -451,7 +460,7 @@
 					$partialStatus.html('<span style="color:#d63638;">Server error — check your error log.</span>');
 				})
 				.always(function () {
-					$partialBtn.prop('disabled', false).text('Update category');
+					$partialBtn.prop('disabled', false).find('.tlt-btn__label').text('Update category');
 				});
 			});
 		}
