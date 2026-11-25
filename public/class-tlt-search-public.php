@@ -109,6 +109,13 @@ class Tlt_Search_Public {
 				'clickUrl'       => rest_url( 'tlt-search/v1/click' ),
 				'cartUrl'        => class_exists( 'WC_AJAX' ) ? \WC_AJAX::get_endpoint( 'add_to_cart' ) : '',
 				'addedText'      => __( 'Added', 'tlt-search' ),
+				'searchUrl'      => home_url( '/' ),
+				'errorText'      => __( 'Search failed. Please try again.', 'tlt-search' ),
+				'stockLabels'    => [
+					'instock'     => __( 'In stock', 'tlt-search' ),
+					'outofstock'  => __( 'Out of stock', 'tlt-search' ),
+					'onbackorder' => __( 'On backorder', 'tlt-search' ),
+				],
 				'perPage'        => \TLTSuite\TLTSearch\Search\SearchOptions::results_per_page(),
 				'showRating'     => \TLTSuite\TLTSearch\Search\SearchOptions::show_rating(),
 				'showAddToCart'  => \TLTSuite\TLTSearch\Search\SearchOptions::show_add_to_cart(),

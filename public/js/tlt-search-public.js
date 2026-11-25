@@ -15,7 +15,7 @@ document.addEventListener( 'alpine:init', () => {
 		error: null,
 
 		showFilters: config.showFilters ?? true,
-		filterPanelOpen: true,
+		filterPanelOpen: false,
 
 		filters: {
 			categories: [],
@@ -35,6 +35,7 @@ document.addEventListener( 'alpine:init', () => {
 		},
 
 		activeIndex: -1,
+		requestId: 0,
 		terms: [],
 		didYouMean: null,
 		popular: [],
@@ -63,6 +64,23 @@ document.addEventListener( 'alpine:init', () => {
 			this.query = term;
 			this.showPopular = false;
 			await this.search();
+		},
+
+		async clearQuery() {
+			this.query = '';
+			this.error = null;
+			this.activeIndex = -1;
+			this.clearResults();
+			this.$refs.input.focus();
+			await this.onFocus(); // Offer popular searches again, even if the input never lost focus.
+		},
+
+		// The store's own product search page for the same words.
+		allResultsUrl() {
+			const url = new URL( this.cfg.searchUrl, window.location.href );
+			url.searchParams.set( 's', this.query );
+			url.searchParams.set( 'post_type', 'product' );
+			return url.toString();
 		},
 
 		async useSuggestion() {
@@ -148,6 +166,7 @@ document.addEventListener( 'alpine:init', () => {
 			this.loading     = true;
 			this.hasSearched = true;
 			this.error       = null;
+			const requestId  = ++this.requestId;
 
 			try {
 				const url = new URL( tltSearchConfig.apiUrl );
@@ -184,6 +203,9 @@ document.addEventListener( 'alpine:init', () => {
 
 				const json = await response.json();
 
+				// A newer search or a clear happened while this one was loading.
+				if ( requestId !== this.requestId ) return;
+
 				if ( json.success ) {
 					this.activeIndex = -1;
 					this.terms      = json.data.terms ?? [];
@@ -195,15 +217,16 @@ document.addEventListener( 'alpine:init', () => {
 						this.facets = json.data.facets;
 					}
 				} else {
-					this.error = json.error?.message ?? 'Search failed.';
+					this.error = json.error?.message ?? this.cfg.errorText;
 					this.clearResults();
 				}
 
 			} catch ( e ) {
-				this.error = 'Search failed. Please try again.';
+				if ( requestId !== this.requestId ) return;
+				this.error = this.cfg.errorText;
 				this.clearResults();
 			} finally {
-				this.loading = false;
+				if ( requestId === this.requestId ) this.loading = false;
 			}
 		},
 
@@ -276,8 +299,7 @@ document.addEventListener( 'alpine:init', () => {
 		},
 
 		stockLabel( value ) {
-			const map = { instock: 'In Stock', outofstock: 'Out of Stock', onbackorder: 'On Backorder' };
-			return map[ value ] ?? value;
+			return this.cfg.stockLabels?.[ value ] ?? value;
 		},
 
 		async prevPage() {
@@ -313,6 +335,8 @@ document.addEventListener( 'alpine:init', () => {
 		},
 
 		clearResults() {
+			this.requestId++; // Drop any answer still on its way.
+			this.loading     = false;
 			this.results     = [];
 			this.terms       = [];
 			this.didYouMean  = null;

@@ -3,6 +3,7 @@ defined( 'ABSPATH' ) || exit;
 $placeholder   = $atts['placeholder'] ?? __( 'Search products…', 'tlt-search' );
 $show_filters  = filter_var( $atts['show_filters'] ?? 'true', FILTER_VALIDATE_BOOLEAN );
 $show_filters_js = $show_filters ? 'true' : 'false';
+$uid           = wp_unique_id( 'tlt-search-' ); // Keeps element ids apart when a page has several boxes.
 ?>
 
 <?php
@@ -25,6 +26,7 @@ $img_size     = \TLTSuite\TLTSearch\Search\SearchOptions::image_size();
 		<input
 			type="search"
 			class="tlt-search__input"
+			x-ref="input"
 			x-model="query"
 			@input.debounce.300ms="search()"
 			@focus="onFocus()"
@@ -35,16 +37,17 @@ $img_size     = \TLTSuite\TLTSearch\Search\SearchOptions::image_size();
 			role="combobox"
 			aria-expanded="false"
 			:aria-expanded="hasResults() && hasSearched ? 'true' : 'false'"
-			aria-controls="tlt-search-listbox"
+			aria-controls="<?php echo esc_attr( $uid ); ?>-listbox"
 			aria-autocomplete="list"
-			:aria-activedescendant="activeIndex !== -1 ? 'tlt-search-opt-' + results[activeIndex].id : null"
+			:aria-activedescendant="activeIndex !== -1 ? '<?php echo esc_attr( $uid ); ?>-opt-' + results[activeIndex].id : null"
 			placeholder="<?php echo esc_attr( $placeholder ); ?>"
 			autocomplete="off"
 			aria-label="<?php esc_attr_e( 'Search products', 'tlt-search' ); ?>"
 		/>
-		<span class="tlt-search__spinner" x-show="loading" aria-hidden="true"></span>
+		<span class="tlt-search__spinner" x-show="loading" x-cloak aria-hidden="true"></span>
+		<button type="button" class="tlt-search__clear" x-show="query !== '' && ! loading" x-cloak @click="clearQuery()" aria-label="<?php esc_attr_e( 'Clear search', 'tlt-search' ); ?>">&times;</button>
 	</div>
-	<div class="tlt-search__results-container" x-show="hasSearched || loading || hasError() || showPopular">
+	<div class="tlt-search__results-container" x-show="hasSearched || loading || hasError() || showPopular" x-cloak>
 	<!-- Popular searches (empty box on focus) -->
 	<div class="tlt-search__popular" x-show="showPopular">
 		<span class="tlt-search__popular-title"><?php esc_html_e( 'Popular searches', 'tlt-search' ); ?></span>
@@ -247,9 +250,9 @@ $img_size     = \TLTSuite\TLTSearch\Search\SearchOptions::image_size();
 	</ul>
 
 	<!-- Results List -->
-	<ul class="tlt-search__results" id="tlt-search-listbox" x-show="hasResults()" role="listbox">
+	<ul class="tlt-search__results" id="<?php echo esc_attr( $uid ); ?>-listbox" x-show="hasResults()" role="listbox">
 		<template x-for="(result, i) in results" :key="result.id">
-			<li class="tlt-search__result" :class="{ 'tlt-search__result--active': i === activeIndex }" :id="'tlt-search-opt-' + result.id" role="option" :aria-selected="i === activeIndex ? 'true' : 'false'" @mouseenter="activeIndex = i">
+			<li class="tlt-search__result" :class="{ 'tlt-search__result--active': i === activeIndex }" :id="'<?php echo esc_attr( $uid ); ?>-opt-' + result.id" role="option" :aria-selected="i === activeIndex ? 'true' : 'false'" @mouseenter="activeIndex = i">
 				<a :href="result.permalink" class="tlt-search__result-link" @click="trackClick(result)">
 
 					<img
@@ -283,6 +286,11 @@ $img_size     = \TLTSuite\TLTSearch\Search\SearchOptions::image_size();
 			</li>
 		</template>
 	</ul>
+
+	<!-- Link to the store's results page -->
+	<a class="tlt-search__view-all" x-show="hasResults() && ! loading" :href="allResultsUrl()">
+		<?php esc_html_e( 'View all results', 'tlt-search' ); ?>
+	</a>
 
 	<!-- Pagination -->
 	<nav class="tlt-search__pagination" x-show="hasPages()" aria-label="<?php esc_attr_e( 'Search results pages', 'tlt-search' ); ?>">
