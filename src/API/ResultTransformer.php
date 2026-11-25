@@ -35,8 +35,14 @@ class ResultTransformer {
 		}
 
 		if ( $product && SearchOptions::show_add_to_cart() ) {
+			// WooCommerce builds a simple product's add-to-cart URL from the *current* URL,
+			// which in a REST request is this search endpoint. Anchor it to the product page.
+			$url = $product->is_type( 'simple' )
+				? add_query_arg( 'add-to-cart', $product->get_id(), $product->get_permalink() )
+				: $product->add_to_cart_url();
+
 			$data['add_to_cart'] = ( $product->is_purchasable() && $product->is_in_stock() ) ? [
-				'url'  => $product->add_to_cart_url(),
+				'url'  => $url,
 				'text' => $product->add_to_cart_text(),
 			] : null;
 		}
