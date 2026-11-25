@@ -46,6 +46,10 @@ class SearchOptions {
 		return 'yes' === ( self::all()['show_add_to_cart'] ?? 'no' );
 	}
 
+	public static function result_cache_enabled(): bool {
+		return 'off' !== ( self::all()['result_cache'] ?? 'on' );
+	}
+
 	public static function hide_out_of_stock(): bool {
 		return 'yes' === ( self::all()['hide_out_of_stock'] ?? 'no' );
 	}

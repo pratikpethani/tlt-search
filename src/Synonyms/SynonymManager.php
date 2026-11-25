@@ -32,6 +32,7 @@ class SynonymManager {
 	 */
 	public function save_groups( array $groups ): void {
 		update_option( self::OPTION_KEY, array_values( $groups ) );
+		\TLTSuite\TLTSearch\Search\ResultCache::bump();
 	}
 
 	/**

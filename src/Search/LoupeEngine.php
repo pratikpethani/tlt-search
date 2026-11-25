@@ -11,6 +11,9 @@ use TLTSuite\TLTSearch\Support\Paths;
 
 class LoupeEngine implements SearchEngineInterface {
 
+	/** Most results one search can return (Loupe's default is 1000). */
+	public const MAX_HITS = 10000;
+
 	protected Loupe $loupe;
 
 	public function __construct() {
@@ -30,6 +33,7 @@ class LoupeEngine implements SearchEngineInterface {
 			->withSortableAttributes( [ 'price', 'title' ] )
 			// exactness first → exact matches rank above fuzzy/partial matches.
 			->withRankingRules( [ 'exactness', 'attribute', 'words', 'typo', 'proximity' ] )
+			->withMaxTotalHits( self::MAX_HITS )
 			->withLanguages( $this->get_languages( $language ) );
 
 		if ( ! SearchOptions::typo_tolerance() ) {
@@ -71,17 +75,30 @@ class LoupeEngine implements SearchEngineInterface {
 
 	public function search( string $query, array $options = [] ): array {
 
-		$hits_per_page = min( (int) ( $options['hitsPerPage'] ?? 20 ), 1000 );
+		$limit    = min( (int) ( $options['hitsPerPage'] ?? 20 ), self::MAX_HITS );
+		$per_page = min( $limit, 1000 );
+		$hits     = [];
 
-		$params = SearchParameters::create()
-			->withQuery( $query )
-			->withHitsPerPage( $hits_per_page );
+		for ( $page = 1; count( $hits ) < $limit; $page++ ) {
 
-		if ( ! empty( $options['filter'] ) ) {
-			$params = $params->withFilter( (string) $options['filter'] );
+			$params = SearchParameters::create()
+				->withQuery( $query )
+				->withHitsPerPage( $per_page )
+				->withPage( $page );
+
+			if ( ! empty( $options['filter'] ) ) {
+				$params = $params->withFilter( (string) $options['filter'] );
+			}
+
+			$result = $this->query( $params );
+			$hits   = array_merge( $hits, $result->getHits() );
+
+			if ( $page >= $result->getTotalPages() ) {
+				break;
+			}
 		}
 
-		return $this->query( $params )->getHits();
+		return array_slice( $hits, 0, $limit );
 	}
 
 	/**

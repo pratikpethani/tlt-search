@@ -23,6 +23,7 @@ class BulkIndexer {
 		$this->engine = new LoupeEngine();
 
 		update_option( 'tlt_search_last_rebuilt', time() );
+		\TLTSuite\TLTSearch\Search\ResultCache::bump();
 
 		return $this->count_published_products();
 	}
@@ -51,6 +52,8 @@ class BulkIndexer {
 			$manager->index_product( (int) $product_id );
 			$count++;
 		}
+
+		\TLTSuite\TLTSearch\Search\ResultCache::bump();
 
 		return [
 			'count' => $count,

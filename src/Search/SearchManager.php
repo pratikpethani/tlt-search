@@ -44,7 +44,7 @@ class SearchManager {
 		$all_hits = [];
 
 		foreach ( $queries as $q ) {
-			foreach ( $this->engine->search( $q, [ 'hitsPerPage' => 1000, 'filter' => $this->language_filter( $filters ) ] ) as $hit ) {
+			foreach ( $this->engine->search( $q, [ 'hitsPerPage' => LoupeEngine::MAX_HITS, 'filter' => $this->language_filter( $filters ) ] ) as $hit ) {
 				$id = $hit['id'] ?? null;
 				if ( null === $id || isset( $seen[ $id ] ) ) {
 					continue;

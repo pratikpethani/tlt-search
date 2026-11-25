@@ -91,6 +91,8 @@ class PinManager {
 			'product_id' => $product_id,
 			'position'   => $max_pos + 1,
 		] );
+
+		\TLTSuite\TLTSearch\Search\ResultCache::bump();
 	}
 
 	/**
@@ -101,6 +103,8 @@ class PinManager {
 		global $wpdb;
 
 		$wpdb->delete( $wpdb->prefix . 'tlt_search_pins', [ 'id' => $pin_id ] );
+
+		\TLTSuite\TLTSearch\Search\ResultCache::bump();
 	}
 
 	/**

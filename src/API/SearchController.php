@@ -2,6 +2,8 @@
 
 namespace TLTSuite\TLTSearch\API;
 
+use TLTSuite\TLTSearch\Search\ResultCache;
+use TLTSuite\TLTSearch\Search\SearchOptions;
 use TLTSuite\TLTSearch\Search\SearchService;
 use TLTSuite\TLTSearch\Analytics\SearchLogger;
 use TLTSuite\TLTSearch\Merchandising\PinManager;
@@ -76,66 +78,77 @@ class SearchController {
 			$sort        = $validator->get_sort( $request );
 			$page        = $validator->get_page( $request );
 			$per_page    = $validator->get_per_page( $request );
-			$pin_manager = new PinManager();
-			$pinned_ids  = $pin_manager->get_pinned_product_ids( $query );
+			$cache  = new ResultCache();
+			$parts  = [ $query, $filters, $sort, $page, $per_page, SearchOptions::all() ];
+			$cached = $cache->get( $parts );
 
-			// Fast path: Loupe filters, sorts, pages and counts facets itself.
-			// Pinned results and synonym-expanded queries need merging in PHP (legacy path).
-			$native = empty( $pinned_ids )
-				? $service->search_native( $query, $filters, $sort, $page, $per_page )
-				: null;
+			if ( null !== $cached ) {
 
-			if ( null !== $native ) {
-
-				$hits          = $native['hits'];
-				$facets        = $native['facets'];
-				$total         = $native['total'];
-				$organic_total = $total;
+				[ $results, $facets, $total, $organic_total ] = $cached;
 
 			} else {
 
-				$result   = $service->search_with_facets( $query, $filters, [ 'sort' => $sort ] );
-				$all_hits = $result['hits'];
-				$facets   = $result['facets'];
+				$pin_manager = new PinManager();
+				$pinned_ids  = $pin_manager->get_pinned_product_ids( $query );
 
-				// Inject manually pinned products at the front of results.
-				if ( ! empty( $pinned_ids ) ) {
-					$all_hits = array_values( array_filter(
-						$all_hits,
-						static fn( array $h ) => ! in_array( (int) ( $h['id'] ?? 0 ), $pinned_ids, true )
-					) );
+				// Fast path: Loupe filters, sorts, pages and counts facets itself.
+				// Pinned results and synonym-expanded queries need merging in PHP (legacy path).
+				$native = empty( $pinned_ids )
+					? $service->search_native( $query, $filters, $sort, $page, $per_page )
+					: null;
 
-					$pinned_docs = [];
-					foreach ( $pinned_ids as $pid ) {
-						$product = wc_get_product( $pid );
-						if ( ! $product || $product->get_status() !== 'publish' ) {
-							continue;
+				if ( null !== $native ) {
+
+					$hits          = $native['hits'];
+					$facets        = $native['facets'];
+					$total         = $native['total'];
+					$organic_total = $total;
+
+				} else {
+
+					$result   = $service->search_with_facets( $query, $filters, [ 'sort' => $sort ] );
+					$all_hits = $result['hits'];
+					$facets   = $result['facets'];
+
+					// Inject manually pinned products at the front of results.
+					if ( ! empty( $pinned_ids ) ) {
+						$all_hits = array_values( array_filter(
+							$all_hits,
+							static fn( array $h ) => ! in_array( (int) ( $h['id'] ?? 0 ), $pinned_ids, true )
+						) );
+
+						$pinned_docs = [];
+						foreach ( $pinned_ids as $pid ) {
+							$product = wc_get_product( $pid );
+							if ( ! $product || $product->get_status() !== 'publish' ) {
+								continue;
+							}
+							$pinned_docs[] = [
+								'id'           => $pid,
+								'title'        => $product->get_name(),
+								'sku'          => $product->get_sku(),
+								'price'        => (float) $product->get_price(),
+								'stock_status' => $product->get_stock_status(),
+								'featured'     => (bool) $product->get_featured(),
+								'_pinned'      => true,
+							];
 						}
-						$pinned_docs[] = [
-							'id'           => $pid,
-							'title'        => $product->get_name(),
-							'sku'          => $product->get_sku(),
-							'price'        => (float) $product->get_price(),
-							'stock_status' => $product->get_stock_status(),
-							'featured'     => (bool) $product->get_featured(),
-							'_pinned'      => true,
-						];
+
+						$all_hits = array_merge( $pinned_docs, $all_hits );
 					}
 
-					$all_hits = array_merge( $pinned_docs, $all_hits );
+
+					$total         = count( $all_hits );
+					$organic_total = $result['total']; // excludes pins, used for analytics
+					$hits          = array_slice( $all_hits, ( $page - 1 ) * $per_page, $per_page );
 				}
 
+				$results = ( new ResultTransformer() )->transform_collection( $hits );
 
-				$total         = count( $all_hits );
-				$organic_total = $result['total']; // excludes pins, used for analytics
-				$hits          = array_slice( $all_hits, ( $page - 1 ) * $per_page, $per_page );
+				$cache->set( $parts, [ $results, $facets, $total, $organic_total ] );
 			}
 
 			( new SearchLogger() )->log( $query, $organic_total );
-
-			$transformer = new ResultTransformer();
-
-			$results = $transformer->transform_collection( $hits );
 
 			$formatter = new ResponseFormatter();
 

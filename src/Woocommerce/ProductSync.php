@@ -3,6 +3,7 @@
 namespace TLTSuite\TLTSearch\WooCommerce;
 
 use TLTSuite\TLTSearch\Indexing\IndexManager;
+use TLTSuite\TLTSearch\Search\ResultCache;
 use TLTSuite\TLTSearch\Support\Logger;
 use WP_Post;
 use WC_Product;
@@ -60,7 +61,10 @@ class ProductSync {
 
 		if ( 'product' === $type ) {
 			unset( $this->queue[ $post_id ] );
-			$this->run( fn() => $this->manager()->delete_product( $post_id ) );
+			$this->run( function () use ( $post_id ) {
+				$this->manager()->delete_product( $post_id );
+				ResultCache::bump();
+			} );
 		} elseif ( 'product_variation' === $type && $post instanceof WP_Post && $post->post_parent ) {
 			$this->queue( (int) $post->post_parent );
 		}
@@ -74,7 +78,10 @@ class ProductSync {
 		}
 
 		unset( $this->queue[ $product_id ] );
-		$this->run( fn() => $this->manager()->delete_product( $product_id ) );
+		$this->run( function () use ( $product_id ) {
+			$this->manager()->delete_product( $product_id );
+			ResultCache::bump();
+		} );
 	}
 
 	// Queue ----------------------------------------------------------------
@@ -100,6 +107,10 @@ class ProductSync {
 
 		foreach ( $ids as $id ) {
 			$this->run( fn() => $this->manager()->sync_product( (int) $id ) );
+		}
+
+		if ( $ids ) {
+			ResultCache::bump();
 		}
 	}
 

@@ -215,6 +215,8 @@ class Tlt_Search_Admin {
 		$clean    = [];
 		$existing = (array) get_option( 'tlt_search_settings', [] );
 
+		\TLTSuite\TLTSearch\Search\ResultCache::bump(); // Settings change what results look like.
+
 		$clean['stop_words'] = sanitize_text_field( $input['stop_words'] ?? '' );
 
 		// Searchable fields and their priority. Keep stored values if the form omitted them.
@@ -230,6 +232,7 @@ class Tlt_Search_Admin {
 		$clean['typo_tolerance']    = $pick( 'typo_tolerance', [ 'on', 'off' ], 'on' );
 		$clean['hide_out_of_stock'] = $pick( 'hide_out_of_stock', [ 'yes', 'no' ], 'no' );
 
+		$clean['result_cache']     = $pick( 'result_cache', [ 'on', 'off' ], 'on' );
 		$clean['image_size']       = $pick( 'image_size', [ 'small', 'medium', 'large' ], 'medium' );
 		$clean['layout']           = $pick( 'layout', [ 'list', 'grid' ], 'list' );
 		$clean['show_rating']      = $pick( 'show_rating', [ 'yes', 'no' ], 'no' );
