@@ -2,6 +2,7 @@
 
 namespace TLTSuite\TLTSearch\WooCommerce;
 
+use TLTSuite\TLTSearch\Search\SearchFields;
 use WC_Product;
 use WC_Product_Attribute;
 
@@ -15,6 +16,8 @@ class ProductDocumentMapper {
 			'id'                => (string) $product->get_id(),
 			'title'             => $product->get_name(),
 			'sku'               => $product->get_sku(),
+			'gtin'              => $this->get_gtin( $product ),
+			'custom_fields'     => $this->get_custom_fields( $product ),
 			'description'       => wp_strip_all_tags(
 				$product->get_description()
 			),
@@ -39,6 +42,36 @@ class ProductDocumentMapper {
 			'stock_status'      => $product->get_stock_status(),
 			'featured'          => $product->is_featured(),
 		];
+	}
+
+	protected function get_gtin( WC_Product $product ): string {
+
+		return method_exists( $product, 'get_global_unique_id' )
+			? (string) $product->get_global_unique_id()
+			: (string) $product->get_meta( '_global_unique_id' );
+	}
+
+	/**
+	 * Values of the meta keys chosen in settings, flattened to a list of strings.
+	 */
+	protected function get_custom_fields( WC_Product $product ): array {
+
+		$values = [];
+
+		foreach ( SearchFields::custom_field_keys() as $key ) {
+			$value = $product->get_meta( $key );
+			if ( is_array( $value ) ) {
+				array_walk_recursive( $value, static function ( $v ) use ( &$values ) {
+					if ( is_scalar( $v ) && '' !== (string) $v ) {
+						$values[] = (string) $v;
+					}
+				} );
+			} elseif ( is_scalar( $value ) && '' !== (string) $value ) {
+				$values[] = (string) $value;
+			}
+		}
+
+		return array_values( array_unique( $values ) );
 	}
 
 	protected function get_term_names( int $product_id, string $taxonomy ): array {

@@ -22,16 +22,8 @@ class LoupeEngine implements SearchEngineInterface {
 		$config = Configuration::create()
 			->withPrimaryKey( 'id' )
 			// Field order determines attribute weight: earlier = higher relevance boost.
-			->withSearchableAttributes( [
-				'title',
-				'sku',
-				'categories',
-				'brands',
-				'tags',
-				'attribute_values',
-				'short_description',
-				'description',
-			] )
+			// Chosen and ordered on the Settings page.
+			->withSearchableAttributes( SearchFields::enabled() )
 			// Filterable attributes needed for Phase 7 facets.
 			->withFilterableAttributes( [ 'price', 'stock_status', 'featured', 'categories', 'brands', 'tags' ] )
 			// Sortable attributes needed for Phase 7 ordering.

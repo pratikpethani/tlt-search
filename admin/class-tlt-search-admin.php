@@ -212,13 +212,22 @@ class Tlt_Search_Admin {
 
 	public function sanitize_settings( $input ): array {
 
-		$clean = [];
+		$clean    = [];
+		$existing = (array) get_option( 'tlt_search_settings', [] );
 
 		$clean['stop_words'] = sanitize_text_field( $input['stop_words'] ?? '' );
 
+		// Searchable fields and their priority. Keep stored values if the form omitted them.
+		$clean['search_fields'] = isset( $input['search_fields'] )
+			? \TLTSuite\TLTSearch\Search\SearchFields::sanitize( $input['search_fields'] )
+			: ( $existing['search_fields'] ?? [] );
+
+		$clean['custom_field_keys'] = isset( $input['custom_field_keys'] )
+			? implode( ', ', \TLTSuite\TLTSearch\Search\SearchFields::parse_keys( (string) $input['custom_field_keys'] ) )
+			: ( $existing['custom_field_keys'] ?? '' );
+
 		// Synonyms are now managed via the dedicated Synonyms Manager page.
 		// Preserve the stored value so legacy data is not lost on settings save.
-		$existing          = (array) get_option( 'tlt_search_settings', [] );
 		$clean['synonyms'] = sanitize_textarea_field( $existing['synonyms'] ?? '' );
 
 		return $clean;

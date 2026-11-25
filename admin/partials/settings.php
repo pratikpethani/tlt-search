@@ -76,6 +76,48 @@ $options = (array) get_option( 'tlt_search_settings', [] );
 										<span class="text-gray"><?php esc_html_e( 'Add, edit, and remove synonym groups from the dedicated Synonyms page. Changes take effect immediately.', 'tlt-search' ); ?></span>
 									</div>
 								</div>
+								<?php
+								$fields_saved = (array) ( $options['search_fields'] ?? [] );
+								$enabled_now  = \TLTSuite\TLTSearch\Search\SearchFields::enabled();
+								$pos          = 0;
+								?>
+								<div class="form-group">
+									<div class="col-3 col-sm-12">
+										<label class="form-label"><?php esc_html_e( 'Searchable fields', 'tlt-search' ); ?></label>
+									</div>
+									<div class="col-9 col-sm-12">
+										<table class="table table-striped table-hover">
+											<thead><tr>
+												<th><?php esc_html_e( 'Search', 'tlt-search' ); ?></th>
+												<th><?php esc_html_e( 'Field', 'tlt-search' ); ?></th>
+												<th><?php esc_html_e( 'Priority', 'tlt-search' ); ?></th>
+											</tr></thead>
+											<tbody>
+											<?php foreach ( \TLTSuite\TLTSearch\Search\SearchFields::available() as $key => $label ) :
+												$pos++;
+												$is_on = in_array( $key, $enabled_now, true );
+												$rank  = (int) ( $fields_saved[ $key ]['rank'] ?? $pos );
+												?>
+												<tr>
+													<td><input type="checkbox" name="tlt_search_settings[search_fields][<?php echo esc_attr( $key ); ?>][enabled]" value="1" <?php checked( $is_on ); ?>/></td>
+													<td><?php echo esc_html( $label ); ?></td>
+													<td><input type="number" min="1" max="99" style="width:4em" name="tlt_search_settings[search_fields][<?php echo esc_attr( $key ); ?>][rank]" value="<?php echo esc_attr( $rank ); ?>"/></td>
+												</tr>
+											<?php endforeach; ?>
+											</tbody>
+										</table>
+										<span class="text-gray"><?php esc_html_e( 'Matches in a field with a lower priority number rank higher (1 = most important). Rebuild the index after changing fields or custom field keys.', 'tlt-search' ); ?></span>
+									</div>
+								</div>
+								<div class="form-group">
+									<div class="col-3 col-sm-12">
+										<label class="form-label" for="tlt-custom-field-keys"><?php esc_html_e( 'Custom field keys', 'tlt-search' ); ?></label>
+									</div>
+									<div class="col-9 col-sm-12">
+										<input type="text" id="tlt-custom-field-keys" name="tlt_search_settings[custom_field_keys]" class="form-input mb-1" value="<?php echo esc_attr( (string) ( $options['custom_field_keys'] ?? '' ) ); ?>"/>
+										<span class="text-gray"><?php esc_html_e( 'Comma-separated product meta keys (e.g. an ACF field name) to make searchable. Needs the "Custom fields" row enabled above.', 'tlt-search' ); ?></span>
+									</div>
+								</div>
 								<div class="form-group">
 									<input type="submit" name="submit" id="submit" class="btn btn-primary" value="Save Changes">
 								</div>
