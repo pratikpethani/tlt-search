@@ -44,7 +44,7 @@ class SearchManager {
 		$all_hits = [];
 
 		foreach ( $queries as $q ) {
-			foreach ( $this->engine->search( $q, [ 'hitsPerPage' => 1000 ] ) as $hit ) {
+			foreach ( $this->engine->search( $q, [ 'hitsPerPage' => 1000, 'filter' => $this->language_filter( $filters ) ] ) as $hit ) {
 				$id = $hit['id'] ?? null;
 				if ( null === $id || isset( $seen[ $id ] ) ) {
 					continue;
@@ -123,6 +123,11 @@ class SearchManager {
 
 		$base = SearchParameters::create()->withQuery( $query )->withHitsPerPage( 1 );
 
+		$lang_filter = $this->language_filter( $filters );
+		if ( '' !== $lang_filter ) {
+			$base = $base->withFilter( $lang_filter );
+		}
+
 		$dist = $this->engine->query(
 			$base->withFacets( [ 'categories', 'brands', 'tags', 'stock_status' ] )
 		)->getFacetDistribution();
@@ -146,6 +151,11 @@ class SearchManager {
 		$esc    = static fn( $v ): string => SearchParameters::escapeFilterValue( (string) $v );
 		$clauses = [];
 
+		$lang_filter = $this->language_filter( $filters );
+		if ( '' !== $lang_filter ) {
+			$clauses[] = $lang_filter;
+		}
+
 		foreach ( [ 'categories', 'brands', 'tags' ] as $attr ) {
 			$values = array_filter( (array) ( $filters[ $attr ] ?? [] ), static fn( $v ) => '' !== (string) $v );
 			if ( $values ) {
@@ -166,6 +176,14 @@ class SearchManager {
 		return implode( ' AND ', $clauses );
 	}
 
+	/** Restrict to one language when WPML/Polylang is active and a language is known. */
+	private function language_filter( array $filters ): string {
+
+		$lang = (string) ( $filters['lang'] ?? '' );
+
+		return '' === $lang ? '' : 'lang = ' . SearchParameters::escapeFilterValue( $lang );
+	}
+
 	public function search( string $query, array $options = [] ): array {
 
 		$normalized = $this->preprocessor->normalize( $query );
@@ -175,6 +193,8 @@ class SearchManager {
 		}
 
 		$queries = $this->preprocessor->get_synonym_queries( $normalized );
+
+		$options['filter'] = $this->language_filter( [ 'lang' => \TLTSuite\TLTSearch\Support\Multilingual::current() ] );
 
 		if ( count( $queries ) === 1 ) {
 			return $this->engine->search( $normalized, $options );

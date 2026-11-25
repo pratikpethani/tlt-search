@@ -105,6 +105,7 @@ class Tlt_Search_Public {
 			[
 				'apiUrl' => rest_url( 'tlt-search/v1/search' ),
 				'nonce'  => wp_create_nonce( 'wp_rest' ),
+				'lang'   => \TLTSuite\TLTSearch\Support\Multilingual::current(),
 			]
 		);
 	}

@@ -16,6 +16,7 @@ class ProductDocumentMapper {
 			'id'                => (string) $product->get_id(),
 			'title'             => $product->get_name(),
 			'sku'               => $product->get_sku(),
+			'lang'              => \TLTSuite\TLTSearch\Support\Multilingual::post_language( $product->get_id() ),
 			'gtin'              => $this->get_gtin( $product ),
 			'custom_fields'     => $this->get_custom_fields( $product ),
 			'description'       => wp_strip_all_tags(

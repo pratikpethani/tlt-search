@@ -90,6 +90,9 @@ document.addEventListener( 'alpine:init', () => {
 				url.searchParams.set( 'q',        this.query );
 				url.searchParams.set( 'page',     this.page );
 				url.searchParams.set( 'per_page', this.perPage );
+				if ( tltSearchConfig.lang ) {
+					url.searchParams.set( 'lang', tltSearchConfig.lang );
+				}
 				if ( this.sort !== 'relevance' ) {
 					url.searchParams.set( 'sort', this.sort );
 				}

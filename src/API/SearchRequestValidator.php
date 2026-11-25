@@ -104,6 +104,13 @@ class SearchRequestValidator {
 			$filters['tags'] = array_values( array_filter( array_map( 'sanitize_text_field', $tags ) ) );
 		}
 
+		// Language: requested by the page, validated against active languages; else detected.
+		$lang = \TLTSuite\TLTSearch\Support\Multilingual::validate( (string) $request->get_param( 'lang' ) )
+			?: \TLTSuite\TLTSearch\Support\Multilingual::current();
+		if ( '' !== $lang ) {
+			$filters['lang'] = $lang;
+		}
+
 		$stock = sanitize_text_field( (string) ( $request->get_param( 'stock_status' ) ?? '' ) );
 		if ( in_array( $stock, [ 'instock', 'outofstock', 'onbackorder' ], true ) ) {
 			$filters['stock_status'] = $stock;

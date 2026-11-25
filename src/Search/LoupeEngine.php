@@ -25,12 +25,12 @@ class LoupeEngine implements SearchEngineInterface {
 			// Chosen and ordered on the Settings page.
 			->withSearchableAttributes( SearchFields::enabled() )
 			// Filterable attributes needed for Phase 7 facets.
-			->withFilterableAttributes( [ 'price', 'stock_status', 'featured', 'categories', 'brands', 'tags' ] )
+			->withFilterableAttributes( [ 'price', 'stock_status', 'featured', 'categories', 'brands', 'tags', 'lang' ] )
 			// Sortable attributes needed for Phase 7 ordering.
 			->withSortableAttributes( [ 'price', 'title' ] )
 			// exactness first → exact matches rank above fuzzy/partial matches.
 			->withRankingRules( [ 'exactness', 'attribute', 'words', 'typo', 'proximity' ] )
-			->withLanguages( [ $language ] );
+			->withLanguages( $this->get_languages( $language ) );
 
 		if ( ! empty( $stopWords ) ) {
 			$config = $config->withStopWords( $stopWords );
@@ -73,6 +73,10 @@ class LoupeEngine implements SearchEngineInterface {
 			->withQuery( $query )
 			->withHitsPerPage( $hits_per_page );
 
+		if ( ! empty( $options['filter'] ) ) {
+			$params = $params->withFilter( (string) $options['filter'] );
+		}
+
 		return $this->loupe->search( $params )->getHits();
 	}
 
@@ -81,6 +85,15 @@ class LoupeEngine implements SearchEngineInterface {
 	 */
 	public function query( SearchParameters $params ): \Loupe\Loupe\SearchResult {
 		return $this->loupe->search( $params );
+	}
+
+	/** Site language first, then any other supported language used by WPML/Polylang. */
+	private function get_languages( string $site_language ): array {
+
+		$supported = [ 'en', 'de', 'fr', 'es', 'it', 'pt', 'nl', 'sv', 'no', 'da', 'fi', 'ru', 'hu', 'ro' ];
+		$extra     = array_intersect( \TLTSuite\TLTSearch\Support\Multilingual::languages(), $supported );
+
+		return array_values( array_unique( array_merge( [ $site_language ], $extra ) ) );
 	}
 
 	private function get_site_language(): string {
