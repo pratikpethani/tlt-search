@@ -12,7 +12,12 @@ class SearchFields {
 
 	public const OPTION = 'tlt_search_settings';
 
-	/** Field key => label. Array order is the default priority. */
+	/** Field keys in default priority order. No translation calls: safe to use before `init`. */
+	public static function keys(): array {
+		return [ 'title', 'sku', 'gtin', 'categories', 'brands', 'tags', 'attribute_values', 'custom_fields', 'short_description', 'description' ];
+	}
+
+	/** Field key => label, for the admin UI only (translates, so call it on `init` or later). */
 	public static function available(): array {
 		return [
 			'title'             => __( 'Product title', 'tlt-search' ),
@@ -31,7 +36,7 @@ class SearchFields {
 	/** Enabled field keys, highest priority first. Falls back to all fields in default order. */
 	public static function enabled(): array {
 
-		$all    = array_keys( self::available() );
+		$all    = self::keys();
 		$stored = (array) ( ( (array) get_option( self::OPTION, [] ) )['search_fields'] ?? [] );
 
 		if ( empty( $stored ) ) {
@@ -74,7 +79,7 @@ class SearchFields {
 
 		$clean = [];
 
-		foreach ( array_keys( self::available() ) as $key ) {
+		foreach ( self::keys() as $key ) {
 			$clean[ $key ] = [
 				'enabled' => empty( $input[ $key ]['enabled'] ) ? 0 : 1,
 				'rank'    => max( 1, min( 99, (int) ( $input[ $key ]['rank'] ?? 99 ) ) ),
