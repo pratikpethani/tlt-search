@@ -18,11 +18,44 @@ class IndexManager {
 		$this->mapper = new ProductDocumentMapper();
 	}
 
+	/**
+	 * Only published products that can appear in search results are indexed.
+	 */
+	public function is_indexable( \WC_Product $product ): bool {
+
+		return 'publish' === $product->get_status()
+			&& in_array( $product->get_catalog_visibility(), [ 'visible', 'search' ], true );
+	}
+
+	/**
+	 * Bring one product's index entry in line with its current state:
+	 * re-add it if indexable, otherwise remove it. Variations resolve to their parent.
+	 */
+	public function sync_product( int $product_id ): void {
+
+		$product = wc_get_product( $product_id );
+
+		if ( $product && $product->is_type( 'variation' ) ) {
+			$product_id = $product->get_parent_id();
+			$product    = $product_id ? wc_get_product( $product_id ) : false;
+		}
+
+		if ( ! $product_id ) {
+			return;
+		}
+
+		$this->delete_product( $product_id );
+
+		if ( $product && $this->is_indexable( $product ) ) {
+			$this->index_product( $product_id );
+		}
+	}
+
 	public function index_product( int $product_id ): void {
 
 		$product = wc_get_product( $product_id );
 
-		if ( ! $product ) {
+		if ( ! $product || ! $this->is_indexable( $product ) ) {
 			return;
 		}
 
@@ -33,9 +66,7 @@ class IndexManager {
 
 	public function update_product( int $product_id ): void {
 
-		$this->delete_product( $product_id );
-
-		$this->index_product( $product_id );
+		$this->sync_product( $product_id );
 	}
 
 	public function delete_product( int $product_id ): void {

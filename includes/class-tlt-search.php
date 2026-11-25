@@ -196,6 +196,14 @@ class Tlt_Search {
 		$this->loader->add_action( 'woocommerce_update_product', $product_sync, 'product_updated' );
 		$this->loader->add_action( 'woocommerce_new_product', $product_sync, 'product_updated' );
 		$this->loader->add_action( 'trashed_post', $product_sync, 'product_deleted' );
+		$this->loader->add_action( 'before_delete_post', $product_sync, 'post_deleted', 10, 2 );
+		$this->loader->add_action( 'transition_post_status', $product_sync, 'status_changed', 10, 3 );
+		$this->loader->add_action( 'woocommerce_product_set_stock', $product_sync, 'stock_changed' );
+		$this->loader->add_action( 'woocommerce_variation_set_stock', $product_sync, 'stock_changed' );
+		$this->loader->add_action( 'woocommerce_product_set_stock_status', $product_sync, 'stock_status_changed' );
+		$this->loader->add_action( 'woocommerce_variation_set_stock_status', $product_sync, 'stock_status_changed' );
+		$this->loader->add_action( 'woocommerce_new_product_variation', $product_sync, 'variation_saved' );
+		$this->loader->add_action( 'woocommerce_update_product_variation', $product_sync, 'variation_saved' );
 	}
 
 	private function define_api_hooks(): void {
