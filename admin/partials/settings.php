@@ -123,7 +123,12 @@ $options = (array) get_option( 'tlt_search_settings', [] );
 								$rows = [
 									[ 'match_logic', __( 'Word matching', 'tlt-search' ), 'select', [ 'any' => __( 'Any word (broader results)', 'tlt-search' ), 'all' => __( 'All words (stricter, AND)', 'tlt-search' ) ], 'any', __( 'Whether a product must contain every word searched for.', 'tlt-search' ) ],
 									[ 'typo_tolerance', __( 'Typo tolerance', 'tlt-search' ), 'select', [ 'on' => __( 'On', 'tlt-search' ), 'off' => __( 'Off (exact spelling only)', 'tlt-search' ) ], 'on', __( 'Turn off for exact-match behavior. Rebuild the index after changing.', 'tlt-search' ) ],
-									[ 'min_query_length', __( 'Minimum characters', 'tlt-search' ), 'number', null, '3', __( 'Search starts after this many characters (1 to 10).', 'tlt-search' ) ],
+									[ 'min_query_length', __( 'Minimum characters', 'tlt-search' ), 'number', [ 1, 10 ], '3', __( 'Search starts after this many characters (1 to 10).', 'tlt-search' ) ],
+									[ 'results_per_page', __( 'Results per page', 'tlt-search' ), 'number', [ 1, 50 ], '10', __( 'Products shown per page in the live search.', 'tlt-search' ) ],
+									[ 'layout', __( 'Results layout', 'tlt-search' ), 'select', [ 'list' => __( 'List', 'tlt-search' ), 'grid' => __( 'Grid', 'tlt-search' ) ], 'list', '' ],
+									[ 'image_size', __( 'Image size', 'tlt-search' ), 'select', [ 'small' => __( 'Small (40px)', 'tlt-search' ), 'medium' => __( 'Medium (60px)', 'tlt-search' ), 'large' => __( 'Large (90px)', 'tlt-search' ) ], 'medium', '' ],
+									[ 'show_rating', __( 'Star rating', 'tlt-search' ), 'select', [ 'no' => __( 'Hide', 'tlt-search' ), 'yes' => __( 'Show', 'tlt-search' ) ], 'no', '' ],
+									[ 'show_add_to_cart', __( 'Add to cart button', 'tlt-search' ), 'select', [ 'no' => __( 'Hide', 'tlt-search' ), 'yes' => __( 'Show', 'tlt-search' ) ], 'no', __( 'Simple products add to cart; others link to the product page.', 'tlt-search' ) ],
 									[ 'hide_out_of_stock', __( 'Out-of-stock products', 'tlt-search' ), 'select', [ 'no' => __( 'Show in results', 'tlt-search' ), 'yes' => __( 'Hide from results', 'tlt-search' ) ], 'no', __( 'Rebuild the index after changing.', 'tlt-search' ) ],
 									[ 'exclude_product_ids', __( 'Exclude products', 'tlt-search' ), 'text', null, '', __( 'Comma-separated product IDs to keep out of search. Rebuild the index after changing.', 'tlt-search' ) ],
 									[ 'exclude_categories', __( 'Exclude categories', 'tlt-search' ), 'text', null, '', __( 'Comma-separated category slugs to keep out of search. Rebuild the index after changing.', 'tlt-search' ) ],
@@ -144,7 +149,7 @@ $options = (array) get_option( 'tlt_search_settings', [] );
 													<?php endforeach; ?>
 												</select>
 											<?php else : ?>
-												<input type="<?php echo esc_attr( $type ); ?>" id="tlt-opt-<?php echo esc_attr( $key ); ?>" name="tlt_search_settings[<?php echo esc_attr( $key ); ?>]" class="form-input mb-1" value="<?php echo esc_attr( $value ); ?>" <?php echo 'number' === $type ? 'min="1" max="10"' : ''; ?>/>
+												<input type="<?php echo esc_attr( $type ); ?>" id="tlt-opt-<?php echo esc_attr( $key ); ?>" name="tlt_search_settings[<?php echo esc_attr( $key ); ?>]" class="form-input mb-1" value="<?php echo esc_attr( $value ); ?>" <?php echo 'number' === $type ? 'min="' . (int) $choices[0] . '" max="' . (int) $choices[1] . '"' : ''; ?>/>
 											<?php endif; ?>
 											<span class="text-gray"><?php echo esc_html( $help ); ?></span>
 										</div>

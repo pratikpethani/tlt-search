@@ -81,6 +81,10 @@ class Tlt_Search {
 		$this->define_woocommerce_hooks();
 		$this->define_api_hooks();
 		$this->define_analytics_hooks();
+
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			\WP_CLI::add_command( 'tlt-search', \TLTSuite\TLTSearch\CLI\Command::class );
+		}
 	}
 
 	/**

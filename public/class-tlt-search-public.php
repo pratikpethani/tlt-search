@@ -105,6 +105,9 @@ class Tlt_Search_Public {
 			[
 				'apiUrl' => rest_url( 'tlt-search/v1/search' ),
 				'nonce'  => wp_create_nonce( 'wp_rest' ),
+				'perPage'        => \TLTSuite\TLTSearch\Search\SearchOptions::results_per_page(),
+				'showRating'     => \TLTSuite\TLTSearch\Search\SearchOptions::show_rating(),
+				'showAddToCart'  => \TLTSuite\TLTSearch\Search\SearchOptions::show_add_to_cart(),
 				'minLength' => \TLTSuite\TLTSearch\Search\SearchOptions::min_query_length(),
 				'lang'   => \TLTSuite\TLTSearch\Support\Multilingual::current(),
 			]

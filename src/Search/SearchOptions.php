@@ -25,6 +25,27 @@ class SearchOptions {
 		return max( 1, min( 10, (int) ( self::all()['min_query_length'] ?? 3 ) ) );
 	}
 
+	public static function results_per_page(): int {
+		return max( 1, min( 50, (int) ( self::all()['results_per_page'] ?? 10 ) ) );
+	}
+
+	/** Result thumbnail size in pixels. */
+	public static function image_size(): int {
+		return [ 'small' => 40, 'medium' => 60, 'large' => 90 ][ self::all()['image_size'] ?? 'medium' ] ?? 60;
+	}
+
+	public static function layout(): string {
+		return 'grid' === ( self::all()['layout'] ?? '' ) ? 'grid' : 'list';
+	}
+
+	public static function show_rating(): bool {
+		return 'yes' === ( self::all()['show_rating'] ?? 'no' );
+	}
+
+	public static function show_add_to_cart(): bool {
+		return 'yes' === ( self::all()['show_add_to_cart'] ?? 'no' );
+	}
+
 	public static function hide_out_of_stock(): bool {
 		return 'yes' === ( self::all()['hide_out_of_stock'] ?? 'no' );
 	}

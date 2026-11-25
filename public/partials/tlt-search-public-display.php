@@ -5,7 +5,11 @@ $show_filters  = filter_var( $atts['show_filters'] ?? 'true', FILTER_VALIDATE_BO
 $show_filters_js = $show_filters ? 'true' : 'false';
 ?>
 
-<div class="tlt-search" x-data="TLTSearch({showFilters: <?php echo $show_filters_js; ?>})" @click.outside="closeResults()">
+<?php
+$layout_class = 'grid' === \TLTSuite\TLTSearch\Search\SearchOptions::layout() ? ' tlt-search--grid' : '';
+$img_size     = \TLTSuite\TLTSearch\Search\SearchOptions::image_size();
+?>
+<div class="tlt-search<?php echo esc_attr( $layout_class ); ?>" style="--tlt-img: <?php echo (int) $img_size; ?>px" x-data="TLTSearch({showFilters: <?php echo $show_filters_js; ?>})" @click.outside="closeResults()">
 
 	<!-- Search Input -->
 	<div class="tlt-search__field">
@@ -236,10 +240,18 @@ $show_filters_js = $show_filters ? 'true' : 'false';
 							<span class="tlt-search__badge tlt-search__badge--featured" x-show="result.featured"><?php esc_html_e( 'Featured', 'tlt-search' ); ?></span>
 							<span class="tlt-search__badge tlt-search__badge--out" x-show="result.stock_status === 'outofstock'"><?php esc_html_e( 'Out of stock', 'tlt-search' ); ?></span>
 						</span>
+						<span class="tlt-search__rating" x-show="cfg.showRating && result.rating" :title="result.rating + ' / 5 (' + result.rating_count + ')'">
+							<span class="tlt-search__rating-fill" :style="'width:' + (result.rating * 20) + '%'"></span>
+						</span>
 						<span class="tlt-search__result-price" x-html="result.price"></span>
 					</div>
 
 				</a>
+				<template x-if="cfg.showAddToCart && result.add_to_cart">
+					<div class="tlt-search__result-actions">
+						<a :href="result.add_to_cart.url" class="tlt-search__atc" x-text="result.add_to_cart.text"></a>
+					</div>
+				</template>
 			</li>
 		</template>
 	</ul>

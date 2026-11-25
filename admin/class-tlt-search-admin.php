@@ -230,6 +230,15 @@ class Tlt_Search_Admin {
 		$clean['typo_tolerance']    = $pick( 'typo_tolerance', [ 'on', 'off' ], 'on' );
 		$clean['hide_out_of_stock'] = $pick( 'hide_out_of_stock', [ 'yes', 'no' ], 'no' );
 
+		$clean['image_size']       = $pick( 'image_size', [ 'small', 'medium', 'large' ], 'medium' );
+		$clean['layout']           = $pick( 'layout', [ 'list', 'grid' ], 'list' );
+		$clean['show_rating']      = $pick( 'show_rating', [ 'yes', 'no' ], 'no' );
+		$clean['show_add_to_cart'] = $pick( 'show_add_to_cart', [ 'yes', 'no' ], 'no' );
+
+		$clean['results_per_page'] = isset( $input['results_per_page'] )
+			? max( 1, min( 50, (int) $input['results_per_page'] ) )
+			: ( $existing['results_per_page'] ?? 10 );
+
 		$clean['min_query_length'] = isset( $input['min_query_length'] )
 			? max( 1, min( 10, (int) $input['min_query_length'] ) )
 			: ( $existing['min_query_length'] ?? 3 );

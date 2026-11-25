@@ -2,6 +2,8 @@
 
 namespace TLTSuite\TLTSearch\API;
 
+use TLTSuite\TLTSearch\Search\SearchOptions;
+
 class ResultTransformer {
 
 	public function transform( array $document ): array {
@@ -13,7 +15,7 @@ class ResultTransformer {
 		$raw_price = $document['price'] ?? '';
 		$product   = wc_get_product( $product_id );
 
-		return [
+		$data = [
 			'id'           => $product_id,
 			'title'        => $document['title'] ?? '',
 			'sku'          => $document['sku'] ?? '',
@@ -25,6 +27,21 @@ class ResultTransformer {
 			'image'        => get_the_post_thumbnail_url( $product_id, 'woocommerce_thumbnail' ) ?: wc_placeholder_img_src( 'woocommerce_thumbnail' ),
 			'is_pinned'    => (bool) ( $document['_pinned'] ?? false ),
 		];
+
+		// Optional extras, only computed when switched on in settings.
+		if ( $product && SearchOptions::show_rating() ) {
+			$data['rating']       = (float) $product->get_average_rating();
+			$data['rating_count'] = (int) $product->get_review_count();
+		}
+
+		if ( $product && SearchOptions::show_add_to_cart() ) {
+			$data['add_to_cart'] = ( $product->is_purchasable() && $product->is_in_stock() ) ? [
+				'url'  => $product->add_to_cart_url(),
+				'text' => $product->add_to_cart_text(),
+			] : null;
+		}
+
+		return $data;
 	}
 
 	public function transform_collection( array $documents ): array {
