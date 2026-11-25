@@ -69,6 +69,26 @@ document.addEventListener( 'alpine:init', () => {
 			await this.search();
 		},
 
+		// Simple products are added without leaving the page; others follow the link.
+		async addToCart( result, event ) {
+			if ( ! result.add_to_cart.ajax || ! this.cfg.cartUrl ) return;
+			event.preventDefault();
+			if ( result.atc_busy ) return;
+			result.atc_busy = true;
+			try {
+				const res  = await fetch( this.cfg.cartUrl, { method: 'POST', body: new URLSearchParams( { product_id: result.id, quantity: 1 } ) } );
+				const data = await res.json();
+				if ( data && data.error && data.product_url ) { window.location.href = data.product_url; return; }
+				result.atc_label = this.cfg.addedText;
+				// Let WooCommerce refresh mini-cart fragments if jQuery is present.
+				if ( window.jQuery ) window.jQuery( document.body ).trigger( 'added_to_cart', [ data.fragments, data.cart_hash ] );
+			} catch ( e ) {
+				window.location.href = result.add_to_cart.url;
+			} finally {
+				result.atc_busy = false;
+			}
+		},
+
 		// Tell the server which result was clicked (feeds the Analytics page).
 		trackClick( result ) {
 			if ( ! this.cfg.clickUrl ) return;

@@ -15,6 +15,8 @@ $popular = $report->popular_searches( $days, 20 );
 $no_results = $report->no_result_searches( $days, 20 );
 $clicks     = $report->click_summary( $days );
 $top_clicked = $report->top_clicked( $days, 10 );
+$volume      = $report->search_volume_by_day( $days );
+$vol_max     = max( 1, ...array_map( 'intval', array_column( $volume, 'search_count' ) ?: [ 1 ] ) );
 
 $current_url = admin_url( 'admin.php?page=tlt-search-analytics' );
 
@@ -48,6 +50,32 @@ function tlt_days_link( string $base_url, int $days, int $current_days ): string
 						echo tlt_days_link( $current_url, 90, $days );
 						?>
 					</ul>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="columns">
+				<div class="column col-12">
+					<div class="card p-1">
+						<div class="card-header">
+							<div class="card-title h3 text-bold mb-2"><?php esc_html_e( 'Searches per Day', 'tlt-search' ); ?></div>
+						</div>
+						<div class="card-body">
+							<?php if ( empty( $volume ) ) : ?>
+								<p><?php esc_html_e( 'No searches in this period.', 'tlt-search' ); ?></p>
+							<?php else : ?>
+								<div style="display:flex;align-items:flex-end;gap:2px;height:120px;">
+									<?php foreach ( $volume as $day ) : $h = max( 2, (int) round( 120 * (int) $day['search_count'] / $vol_max ) ); ?>
+										<div title="<?php echo esc_attr( $day['search_date'] . ': ' . $day['search_count'] ); ?>" style="flex:1;height:<?php echo (int) $h; ?>px;background:#5755d9;border-radius:2px 2px 0 0;min-width:2px;"></div>
+									<?php endforeach; ?>
+								</div>
+								<div style="display:flex;justify-content:space-between;color:#888;font-size:0.85em;margin-top:4px;">
+									<span><?php echo esc_html( $volume[0]['search_date'] ); ?></span>
+									<span><?php echo esc_html( $volume[ count( $volume ) - 1 ]['search_date'] ); ?></span>
+								</div>
+							<?php endif; ?>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

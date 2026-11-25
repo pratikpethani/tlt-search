@@ -268,7 +268,7 @@ $img_size     = \TLTSuite\TLTSearch\Search\SearchOptions::image_size();
 				</a>
 				<template x-if="cfg.showAddToCart && result.add_to_cart">
 					<div class="tlt-search__result-actions">
-						<a :href="result.add_to_cart.url" class="tlt-search__atc" x-text="result.add_to_cart.text"></a>
+						<a :href="result.add_to_cart.url" class="tlt-search__atc" @click="addToCart( result, $event )" x-text="result.atc_label || result.add_to_cart.text"></a>
 					</div>
 				</template>
 			</li>

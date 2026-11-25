@@ -107,6 +107,8 @@ class Tlt_Search_Public {
 				'nonce'  => wp_create_nonce( 'wp_rest' ),
 				'popularUrl'     => rest_url( 'tlt-search/v1/popular' ),
 				'clickUrl'       => rest_url( 'tlt-search/v1/click' ),
+				'cartUrl'        => class_exists( 'WC_AJAX' ) ? \WC_AJAX::get_endpoint( 'add_to_cart' ) : '',
+				'addedText'      => __( 'Added', 'tlt-search' ),
 				'perPage'        => \TLTSuite\TLTSearch\Search\SearchOptions::results_per_page(),
 				'showRating'     => \TLTSuite\TLTSearch\Search\SearchOptions::show_rating(),
 				'showAddToCart'  => \TLTSuite\TLTSearch\Search\SearchOptions::show_add_to_cart(),

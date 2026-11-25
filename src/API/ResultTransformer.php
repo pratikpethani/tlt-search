@@ -44,6 +44,7 @@ class ResultTransformer {
 			$data['add_to_cart'] = ( $product->is_purchasable() && $product->is_in_stock() ) ? [
 				'url'  => $url,
 				'text' => $product->add_to_cart_text(),
+				'ajax' => $product->is_type( 'simple' ),
 			] : null;
 		}
 
