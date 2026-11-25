@@ -105,6 +105,8 @@ class Tlt_Search_Public {
 			[
 				'apiUrl' => rest_url( 'tlt-search/v1/search' ),
 				'nonce'  => wp_create_nonce( 'wp_rest' ),
+				'popularUrl'     => rest_url( 'tlt-search/v1/popular' ),
+				'clickUrl'       => rest_url( 'tlt-search/v1/click' ),
 				'perPage'        => \TLTSuite\TLTSearch\Search\SearchOptions::results_per_page(),
 				'showRating'     => \TLTSuite\TLTSearch\Search\SearchOptions::show_rating(),
 				'showAddToCart'  => \TLTSuite\TLTSearch\Search\SearchOptions::show_add_to_cart(),

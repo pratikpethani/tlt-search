@@ -31,7 +31,7 @@ class TrendingController {
 		);
 	}
 
-	private function check_permission(): bool {
+	public function check_permission(): bool {
 		return current_user_can( 'manage_options' );
 	}
 

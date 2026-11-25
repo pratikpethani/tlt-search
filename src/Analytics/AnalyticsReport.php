@@ -120,6 +120,86 @@ class AnalyticsReport {
 		return $rows ?: [];
 	}
 
+	/** Total result clicks and click-through rate (clicks per search that had results). */
+	public function click_summary( int $days = 30 ): array {
+
+		global $wpdb;
+
+		$since  = $this->since( $days );
+		$clicks = (int) $wpdb->get_var( $wpdb->prepare(
+			"SELECT COUNT(*) FROM {$wpdb->prefix}tlt_search_clicks WHERE clicked_at >= %s",
+			$since
+		) );
+
+		$summary = $this->summary( $days );
+		$rate    = $summary['with_results_count'] > 0 ? round( 100 * $clicks / $summary['with_results_count'], 1 ) : 0.0;
+
+		return [ 'clicks' => $clicks, 'ctr' => $rate ];
+	}
+
+	/** @return array<array{product_id: int, clicks: int}> */
+	public function top_clicked( int $days = 30, int $limit = 10 ): array {
+
+		global $wpdb;
+
+		$rows = $wpdb->get_results( $wpdb->prepare(
+			"SELECT product_id, COUNT(*) AS clicks
+			FROM {$wpdb->prefix}tlt_search_clicks
+			WHERE clicked_at >= %s
+			GROUP BY product_id
+			ORDER BY clicks DESC
+			LIMIT %d",
+			$this->since( $days ),
+			$limit
+		), ARRAY_A );
+
+		return $rows ?: [];
+	}
+
+	/**
+	 * "Did you mean": the closest past query that returned results, if it is only a
+	 * few characters away from $query. Null when nothing is close enough.
+	 */
+	public function suggest( string $query ): ?string {
+
+		global $wpdb;
+
+		$q = mb_strtolower( trim( $query ) );
+
+		if ( '' === $q || strlen( $q ) > 255 ) {
+			return null;
+		}
+
+		$known = $wpdb->get_col( $wpdb->prepare(
+			"SELECT query FROM {$wpdb->prefix}tlt_search_logs
+			WHERE results_count > 0 AND searched_at >= %s
+			GROUP BY query ORDER BY COUNT(*) DESC LIMIT 500",
+			$this->since( 90 )
+		) );
+
+		$max  = min( 3, max( 1, (int) floor( strlen( $q ) / 4 ) ) );
+		$best = null;
+		$dist = PHP_INT_MAX;
+
+		foreach ( (array) $known as $candidate ) {
+
+			$c = mb_strtolower( (string) $candidate );
+
+			if ( $c === $q || strlen( $c ) > 255 ) {
+				continue;
+			}
+
+			$d = levenshtein( $q, $c );
+
+			if ( $d <= $max && $d < $dist ) {
+				$best = (string) $candidate;
+				$dist = $d;
+			}
+		}
+
+		return $best;
+	}
+
 	private function since( int $days ): string {
 		return gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 	}

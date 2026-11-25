@@ -75,6 +75,7 @@ class SearchLogger {
 	 */
 	public function run_cleanup(): void {
 		self::delete_old_logs( 90 );
+		ClickLogger::delete_old_logs( 90 );
 	}
 
 	public static function delete_old_logs( int $days = 90 ): int {

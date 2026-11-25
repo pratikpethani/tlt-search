@@ -18,6 +18,7 @@ $img_size     = \TLTSuite\TLTSearch\Search\SearchOptions::image_size();
 			class="tlt-search__input"
 			x-model="query"
 			@input.debounce.300ms="search()"
+			@focus="onFocus()"
 			@keydown.arrow-down.prevent="moveActive(1)"
 			@keydown.arrow-up.prevent="moveActive(-1)"
 			@keydown.enter="if (activeIndex !== -1) { $event.preventDefault(); openActive(); }"
@@ -34,7 +35,15 @@ $img_size     = \TLTSuite\TLTSearch\Search\SearchOptions::image_size();
 		/>
 		<span class="tlt-search__spinner" x-show="loading" aria-hidden="true"></span>
 	</div>
-	<div class="tlt-search__results-container" x-show="hasSearched || loading || hasError()">
+	<div class="tlt-search__results-container" x-show="hasSearched || loading || hasError() || showPopular">
+	<!-- Popular searches (empty box on focus) -->
+	<div class="tlt-search__popular" x-show="showPopular">
+		<span class="tlt-search__popular-title"><?php esc_html_e( 'Popular searches', 'tlt-search' ); ?></span>
+		<template x-for="term in popular" :key="term">
+			<button type="button" class="tlt-search__chip" @click="usePopular(term)" x-text="term"></button>
+		</template>
+	</div>
+
 	<!-- Error State -->
 	<p class="tlt-search__error" x-show="hasError()" x-text="error" role="alert"></p>
 
@@ -216,13 +225,23 @@ $img_size     = \TLTSuite\TLTSearch\Search\SearchOptions::image_size();
 	>
 		<?php esc_html_e( 'No products found for', 'tlt-search' ); ?>
 		&ldquo;<span x-text="query"></span>&rdquo;.
+		<template x-if="didYouMean">
+			<span class="tlt-search__suggest"><?php esc_html_e( 'Did you mean', 'tlt-search' ); ?> <button type="button" class="tlt-search__chip" @click="useSuggestion()" x-text="didYouMean"></button>?</span>
+		</template>
 	</p>
+
+	<!-- Matching categories and tags -->
+	<ul class="tlt-search__terms" x-show="terms.length !== 0">
+		<template x-for="term in terms" :key="term.url">
+			<li><a :href="term.url" class="tlt-search__term"><span x-text="term.name"></span> <small x-text="term.type"></small></a></li>
+		</template>
+	</ul>
 
 	<!-- Results List -->
 	<ul class="tlt-search__results" id="tlt-search-listbox" x-show="hasResults()" role="listbox">
 		<template x-for="(result, i) in results" :key="result.id">
 			<li class="tlt-search__result" :class="{ 'tlt-search__result--active': i === activeIndex }" :id="'tlt-search-opt-' + result.id" role="option" :aria-selected="i === activeIndex ? 'true' : 'false'" @mouseenter="activeIndex = i">
-				<a :href="result.permalink" class="tlt-search__result-link">
+				<a :href="result.permalink" class="tlt-search__result-link" @click="trackClick(result)">
 
 					<img
 						:src="result.image"

@@ -5,6 +5,8 @@ namespace TLTSuite\TLTSearch\API;
 use TLTSuite\TLTSearch\Search\ResultCache;
 use TLTSuite\TLTSearch\Search\SearchOptions;
 use TLTSuite\TLTSearch\Search\SearchService;
+use TLTSuite\TLTSearch\Search\TermResults;
+use TLTSuite\TLTSearch\Analytics\AnalyticsReport;
 use TLTSuite\TLTSearch\Analytics\SearchLogger;
 use TLTSuite\TLTSearch\Merchandising\PinManager;
 use TLTSuite\TLTSearch\API\SearchRequestValidator;
@@ -85,6 +87,8 @@ class SearchController {
 			if ( null !== $cached ) {
 
 				[ $results, $facets, $total, $organic_total ] = $cached;
+				$terms        = $cached[4] ?? [];
+				$did_you_mean = $cached[5] ?? null;
 
 			} else {
 
@@ -145,7 +149,10 @@ class SearchController {
 
 				$results = ( new ResultTransformer() )->transform_collection( $hits );
 
-				$cache->set( $parts, [ $results, $facets, $total, $organic_total ] );
+				$terms        = 1 === $page ? TermResults::find( $query ) : [];
+				$did_you_mean = 0 === $total ? ( new AnalyticsReport() )->suggest( $query ) : null;
+
+				$cache->set( $parts, [ $results, $facets, $total, $organic_total, $terms, $did_you_mean ] );
 			}
 
 			( new SearchLogger() )->log( $query, $organic_total );
@@ -163,6 +170,8 @@ class SearchController {
 						'max_per_page' => SearchRequestValidator::MAX_PER_PAGE,
 						'results'      => $results,
 						'facets'       => $facets,
+						'terms'        => $terms,
+						'did_you_mean' => $did_you_mean,
 					]
 				)
 			);

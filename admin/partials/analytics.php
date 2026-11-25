@@ -13,6 +13,8 @@ $report  = new AnalyticsReport();
 $summary = $report->summary( $days );
 $popular = $report->popular_searches( $days, 20 );
 $no_results = $report->no_result_searches( $days, 20 );
+$clicks     = $report->click_summary( $days );
+$top_clicked = $report->top_clicked( $days, 10 );
 
 $current_url = admin_url( 'admin.php?page=tlt-search-analytics' );
 
@@ -57,6 +59,8 @@ function tlt_days_link( string $base_url, int $days, int $current_days ): string
 						[ 'label' => __( 'Unique Queries', 'tlt-search' ),     'value' => $summary['unique_queries'] ],
 						[ 'label' => __( 'With Results', 'tlt-search' ),       'value' => $summary['with_results_count'] ],
 						[ 'label' => __( 'Zero Results', 'tlt-search' ),       'value' => $summary['zero_result_count'] ],
+						[ 'label' => __( 'Result Clicks', 'tlt-search' ),      'value' => $clicks['clicks'] ],
+						[ 'label' => __( 'Click-through rate (%)', 'tlt-search' ), 'value' => $clicks['ctr'] ],
 					];
 					foreach ( $cards as $card ) :
 					?>
@@ -142,6 +146,35 @@ function tlt_days_link( string $base_url, int $days, int $current_days ): string
 										<td ><?php echo esc_html( wp_date( get_option( 'date_format' ), strtotime( $row['last_searched'] ) ) ); ?></td>
 									</tr>
 									<?php endforeach; ?>
+								</tbody>
+							</table>
+							<?php endif; ?>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container">
+			<div class="columns">
+				<div class="column col-12">
+					<div class="card p-1">
+						<div class="card-header">
+							<div class="card-title h3 text-bold mb-2"><?php esc_html_e( 'Most Clicked Products', 'tlt-search' ); ?></div>
+							<div class="card-subtitle text-gray"><?php esc_html_e( 'Products shoppers opened from search results.', 'tlt-search' ); ?></div>
+						</div>
+						<div class="card-body">
+							<?php if ( empty( $top_clicked ) ) : ?>
+								<div class="empty"><p class="empty-subtitle"><?php esc_html_e( 'No clicks recorded for this period yet.', 'tlt-search' ); ?></p></div>
+							<?php else : ?>
+							<table class="table table-hover">
+								<thead><tr><th><?php esc_html_e( 'Product', 'tlt-search' ); ?></th><th><?php esc_html_e( 'Clicks', 'tlt-search' ); ?></th></tr></thead>
+								<tbody>
+								<?php foreach ( $top_clicked as $row ) : ?>
+									<tr>
+										<td><a href="<?php echo esc_url( get_edit_post_link( (int) $row['product_id'] ) ); ?>"><?php echo esc_html( get_the_title( (int) $row['product_id'] ) ?: '#' . (int) $row['product_id'] ); ?></a></td>
+										<td><?php echo esc_html( number_format_i18n( (int) $row['clicks'] ) ); ?></td>
+									</tr>
+								<?php endforeach; ?>
 								</tbody>
 							</table>
 							<?php endif; ?>

@@ -220,6 +220,17 @@ class Tlt_Search {
 		$trending = new \TLTSuite\TLTSearch\API\TrendingController();
 		$this->loader->add_action( 'rest_api_init', $trending, 'register_routes' );
 
+		$popular = new \TLTSuite\TLTSearch\API\PopularController();
+		$this->loader->add_action( 'rest_api_init', $popular, 'register_routes' );
+
+		$click = new \TLTSuite\TLTSearch\API\ClickController();
+		$this->loader->add_action( 'rest_api_init', $click, 'register_routes' );
+
+		// Category/tag changes alter dropdown term results.
+		foreach ( [ 'created_term', 'edited_term', 'delete_term' ] as $hook ) {
+			add_action( $hook, [ '\TLTSuite\TLTSearch\Search\ResultCache', 'bump' ] );
+		}
+
 		add_filter( 'rest_endpoints', [ $this, 'hide_rest_namespace' ] );
 	}
 
@@ -233,6 +244,7 @@ class Tlt_Search {
 		// Static callbacks — register directly since the loader pattern requires object instances.
 		add_action( 'admin_init', [ '\TLTSuite\TLTSearch\Analytics\SearchLogger', 'maybe_create_table' ] );
 		add_action( 'admin_init', [ '\TLTSuite\TLTSearch\Merchandising\PinManager', 'maybe_create_table' ] );
+		add_action( 'admin_init', [ '\TLTSuite\TLTSearch\Analytics\ClickLogger', 'maybe_create_table' ] );
 
 		// Daily cron: delete log entries older than 90 days.
 		$logger = new \TLTSuite\TLTSearch\Analytics\SearchLogger();

@@ -232,6 +232,7 @@ class Tlt_Search_Admin {
 		$clean['typo_tolerance']    = $pick( 'typo_tolerance', [ 'on', 'off' ], 'on' );
 		$clean['hide_out_of_stock'] = $pick( 'hide_out_of_stock', [ 'yes', 'no' ], 'no' );
 
+		$clean['show_term_results'] = $pick( 'show_term_results', [ 'yes', 'no' ], 'yes' );
 		$clean['result_cache']     = $pick( 'result_cache', [ 'on', 'off' ], 'on' );
 		$clean['image_size']       = $pick( 'image_size', [ 'small', 'medium', 'large' ], 'medium' );
 		$clean['layout']           = $pick( 'layout', [ 'list', 'grid' ], 'list' );

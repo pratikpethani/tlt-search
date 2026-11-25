@@ -34,9 +34,49 @@ document.addEventListener( 'alpine:init', () => {
 		},
 
 		activeIndex: -1,
+		terms: [],
+		didYouMean: null,
+		popular: [],
+		popularLoaded: false,
+		showPopular: false,
 		sort: 'relevance',
 
 		init() {},
+
+		// Empty search box gets focus: offer popular searches (fetched once).
+		async onFocus() {
+			if ( this.query !== '' || ! this.cfg.popularUrl ) return;
+			if ( ! this.popularLoaded ) {
+				this.popularLoaded = true;
+				try {
+					const json = await ( await fetch( this.cfg.popularUrl ) ).json();
+					this.popular = json.success ? json.data : [];
+				} catch ( e ) {
+					this.popular = [];
+				}
+			}
+			this.showPopular = this.popular.length !== 0;
+		},
+
+		async usePopular( term ) {
+			this.query = term;
+			this.showPopular = false;
+			await this.search();
+		},
+
+		async useSuggestion() {
+			this.query = this.didYouMean;
+			await this.search();
+		},
+
+		// Tell the server which result was clicked (feeds the Analytics page).
+		trackClick( result ) {
+			if ( ! this.cfg.clickUrl ) return;
+			const body = new URLSearchParams( { q: this.query, product_id: result.id } );
+			try {
+				fetch( this.cfg.clickUrl, { method: 'POST', body, keepalive: true } );
+			} catch ( e ) { /* tracking must never block navigation */ }
+		},
 
 		// Escape HTML, then wrap query words in <mark>. Safe for x-html.
 		highlight( text ) {
@@ -59,6 +99,7 @@ document.addEventListener( 'alpine:init', () => {
 		},
 
 		closeResults() {
+			this.showPopular = false;
 			this.activeIndex = -1;
 			this.hasSearched = false;
 		},
@@ -66,6 +107,7 @@ document.addEventListener( 'alpine:init', () => {
 		async search() {
 			this.page = 1;
 			this.activeIndex = -1;
+			this.showPopular = false;
 			this.filters.categories  = [];
 			this.filters.brands      = [];
 			this.filters.tags        = [];
@@ -120,6 +162,8 @@ document.addEventListener( 'alpine:init', () => {
 
 				if ( json.success ) {
 					this.activeIndex = -1;
+					this.terms      = json.data.terms ?? [];
+					this.didYouMean = json.data.did_you_mean ?? null;
 					this.results    = json.data.results;
 					this.total      = json.data.total;
 					this.totalPages = json.data.total_pages;
@@ -246,6 +290,8 @@ document.addEventListener( 'alpine:init', () => {
 
 		clearResults() {
 			this.results     = [];
+			this.terms       = [];
+			this.didYouMean  = null;
 			this.total       = 0;
 			this.totalPages  = 0;
 			this.hasSearched = false;

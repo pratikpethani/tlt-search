@@ -46,6 +46,10 @@ class SearchOptions {
 		return 'yes' === ( self::all()['show_add_to_cart'] ?? 'no' );
 	}
 
+	public static function show_term_results(): bool {
+		return 'no' !== ( self::all()['show_term_results'] ?? 'yes' );
+	}
+
 	public static function result_cache_enabled(): bool {
 		return 'off' !== ( self::all()['result_cache'] ?? 'on' );
 	}

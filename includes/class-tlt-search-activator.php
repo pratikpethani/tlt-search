@@ -33,6 +33,7 @@ class Tlt_Search_Activator {
 
 		\TLTSuite\TLTSearch\Analytics\SearchLogger::create_table();
 		\TLTSuite\TLTSearch\Merchandising\PinManager::create_table();
+		\TLTSuite\TLTSearch\Analytics\ClickLogger::create_table();
 
 		if ( ! wp_next_scheduled( 'tlt_search_cleanup_logs' ) ) {
 			wp_schedule_event( time(), 'daily', 'tlt_search_cleanup_logs' );
