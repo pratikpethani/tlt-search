@@ -1,0 +1,17 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "tlt-search/search",
+	"title": "TLT Product Search",
+	"category": "widgets",
+	"icon": "search",
+	"description": "Live WooCommerce product search powered by TLT Search.",
+	"keywords": [ "search", "product", "woocommerce" ],
+	"textdomain": "tlt-search",
+	"attributes": {
+		"placeholder": { "type": "string", "default": "" },
+		"showFilters": { "type": "boolean", "default": true }
+	},
+	"supports": { "html": false, "align": [ "wide", "full" ] },
+	"editorScript": "file:./editor.js"
+}

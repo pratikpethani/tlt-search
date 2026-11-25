@@ -114,6 +114,25 @@ class Tlt_Search_Public {
 		add_shortcode( 'tlt_search', [ $this, 'render_search_shortcode' ] );
 	}
 
+	public function register_block(): void {
+
+		register_block_type(
+			plugin_dir_path( dirname( __FILE__ ) ) . 'blocks/search',
+			[ 'render_callback' => [ $this, 'render_search_block' ] ]
+		);
+	}
+
+	public function render_search_block( array $attributes ): string {
+
+		$atts = [ 'show_filters' => ! isset( $attributes['showFilters'] ) || $attributes['showFilters'] ? 'true' : 'false' ];
+
+		if ( ! empty( $attributes['placeholder'] ) ) {
+			$atts['placeholder'] = $attributes['placeholder'];
+		}
+
+		return $this->render_search_shortcode( $atts );
+	}
+
 	public function render_search_shortcode( $atts ): string {
 
 		$atts = shortcode_atts(
