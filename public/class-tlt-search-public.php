@@ -114,6 +114,14 @@ class Tlt_Search_Public {
 		add_shortcode( 'tlt_search', [ $this, 'render_search_shortcode' ] );
 	}
 
+	/** elementor/widgets/register (Elementor 3.5+). The widget class extends an Elementor class, so load it only now. */
+	public function register_elementor_widget( $widgets_manager ): void {
+
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'elementor/class-tlt-search-elementor-widget.php';
+
+		$widgets_manager->register( new \Tlt_Search_Elementor_Widget() );
+	}
+
 	public function register_block(): void {
 
 		register_block_type(
