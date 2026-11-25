@@ -28,8 +28,8 @@ class SearchFields {
 			'brands'            => __( 'Brands', 'tlt-search' ),
 			'tags'              => __( 'Tags', 'tlt-search' ),
 			'attribute_values'  => __( 'Attributes', 'tlt-search' ),
-			'custom_fields'     => __( 'Custom fields (keys set below)', 'tlt-search' ),
-			'taxonomy_terms'    => __( 'Custom taxonomies (set below)', 'tlt-search' ),
+			'custom_fields'     => __( 'Custom fields', 'tlt-search' ),
+			'taxonomy_terms'    => __( 'Custom taxonomies', 'tlt-search' ),
 			'short_description' => __( 'Short description', 'tlt-search' ),
 			'description'       => __( 'Description', 'tlt-search' ),
 		];

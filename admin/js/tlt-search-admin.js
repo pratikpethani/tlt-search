@@ -153,6 +153,58 @@
 			});
 		});
 
+		// ── Search fields: option boxes and pickers ──────────────────────────
+
+		var openSource = function ($source, open) {
+			$source.find('.tlt-source__panel').prop('hidden', ! open);
+			$source.find('button.tlt-source__gear').attr('aria-expanded', open ? 'true' : 'false');
+		};
+
+		// Closed from script, so everything stays reachable if scripts fail.
+		openSource($('.tlt-source'), false);
+
+		$('button.tlt-source__gear').on('click', function () {
+			openSource($(this).closest('.tlt-source'), $(this).attr('aria-expanded') !== 'true');
+		});
+
+		$('.tlt-source__panel input[type=number]').on('input', function () {
+			$(this).closest('.tlt-source').find('[data-priority]').text(this.value);
+		});
+
+		$('.tlt-picker').each(function () {
+			var $picker = $(this);
+			var $value  = $picker.find('.tlt-picker__value').attr('type', 'hidden');
+			var $list   = $picker.find('.tlt-picker__list');
+			var $select = $picker.find('select');
+
+			// Writes the list back into the comma-separated setting.
+			var sync = function () {
+				var keys = $list.children().map(function () { return $(this).attr('data-key'); }).get();
+				$value.val(keys.join(', '));
+				$picker.find('.tlt-picker__empty').prop('hidden', keys.length > 0);
+				$picker.closest('.tlt-source').find('[data-selected]').text(keys.length);
+			};
+
+			$picker.on('click', '.tlt-picker__add', function () {
+				var key = $select.val();
+				var has = $list.children().filter(function () { return $(this).attr('data-key') === key; }).length;
+				if ( key && ! has ) {
+					var $item = $($.trim($picker.find('template').html()));
+					$item.attr('data-key', key).find('.tlt-picker__name').text(key);
+					var $remove = $item.find('.tlt-picker__remove');
+					$remove.attr('aria-label', $remove.attr('aria-label') + key);
+					$list.append($item);
+					sync();
+				}
+				$select.val('');
+			});
+
+			$picker.on('click', '.tlt-picker__remove', function () {
+				$(this).closest('li').remove();
+				sync();
+			});
+		});
+
 		// ── Settings tabs ────────────────────────────────────────────────────
 
 		// Only the Settings page links carry data-tab (Analytics reuses the style for plain links).
@@ -177,7 +229,10 @@
 			// An invalid field on a hidden tab would block saving silently: open its tab.
 			$('.tlt-tab-panel :input').on('invalid', function () {
 				// First invalid field wins. Native selector: jQuery has no :invalid.
-				showTab($(this.form.querySelector('input:invalid')).closest('.tlt-tab-panel').data('panel'));
+				var $bad = $(this.form.querySelector('input:invalid'));
+				showTab($bad.closest('.tlt-tab-panel').data('panel'));
+				// A closed options box would hide the problem too.
+				if ( $bad.closest('.tlt-source__panel').length ) openSource($bad.closest('.tlt-source'), true);
 			});
 
 			showTab(sessionStorage.getItem('tltSettingsTab'));
